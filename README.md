@@ -9,7 +9,7 @@ C# library for parsing Twitch.tv IRC chat messages.
 3. Add .dll to your project
 4. Have fun.
 
-# Example?
+# Example? ([See also this](https://github.com/JokkeeZ/Twitchie/blob/master/Twichiedll.Example/Program.cs))
 ```cs
 Twitchie twitchie = new Twitchie();
 
