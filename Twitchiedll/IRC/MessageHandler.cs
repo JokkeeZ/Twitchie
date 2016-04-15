@@ -28,10 +28,7 @@ namespace Twitchiedll.IRC
             WriteRawMessage(builder.ToString());
         }
 
-        public void SendMessage(string Channel, string Message)
-        {
-            Writer.Write($"PRIVMSG {Channel} :{Message}\r\n");
-            Writer.Flush();
-        }
+        public void SendMessage(string Channel, string Message) => 
+            WriteRawMessage($"PRIVMSG {Channel} :{Message}");
     }
 }

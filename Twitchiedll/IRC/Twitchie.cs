@@ -37,7 +37,7 @@ namespace Twitchiedll.IRC
         #endregion
 
         #region Methods
-        public void Connect(string server, int port)
+        public bool Connect(string server, int port)
         {
             Server = server;
 
@@ -45,29 +45,31 @@ namespace Twitchiedll.IRC
             ClientSocket.Connect(Server, port);
 
             if (!IsConnected)
-                return;
+                return false;
 
             Input = new StreamReader(ClientSocket.GetStream());
             Output = new StreamWriter(ClientSocket.GetStream());
             MessageHandler = new MessageHandler(Output);
+
+            return true;
         }
 
-        public void Login(string nick, string username, string[] channels, string password)
+        public void Login(string Nick, string Username, string[] Channels, string Password)
         {
-            Nick = nick;
-            Username = username;
-            Channels = channels;
+            this.Nick = Nick.ToLower();
+            this.Username = Username.ToLower();
+            this.Channels = Channels;
 
             try
             {
-                MessageHandler.WriteRawMessage(new[]
+                MessageHandler.WriteRawMessage(new string[]
                 {
                     $"USER {Nick}",
-                    $"PASS {password}",
+                    $"PASS {Password}",
                     $"NICK {Nick}"
                 });
 
-                MessageHandler.WriteRawMessage(new[]
+                MessageHandler.WriteRawMessage(new string[]
                 {
                     "CAP REQ :twitch.tv/membership",
                     "CAP REQ :twitch.tv/commands",
@@ -76,7 +78,7 @@ namespace Twitchiedll.IRC
             }
             catch (LoginException ex)
             {
-                throw ex;
+                throw new LoginException(ex.Message);
             }
         }
 
@@ -100,7 +102,21 @@ namespace Twitchiedll.IRC
             return false;
         }
 
-        public void HandleEvents()
+        public void Disconnect(string Channel)
+        {
+            MessageHandler.WriteRawMessage($"PART {Channel}");
+            NewDisconnect(new DisconnectEventArgs() { Channel = Channel, User = Nick });
+        }
+
+        public void DisconnectFromAll()
+        {
+            foreach (var channel in Channels)
+                Disconnect(channel);
+        }
+
+        public MessageHandler GetMessageHandler() => MessageHandler;
+
+        private void HandleEvents()
         {
             NewRawMessage(Buffer);
 
@@ -131,23 +147,9 @@ namespace Twitchiedll.IRC
             if (Utilities.BufferElementEquals(Buffer, 1, "PART"))
                 NewPart(new PartEventArgs(Buffer));
 
-            if (Buffer.Contains("NOTICE") && !Buffer.Contains("PRIVMsG"))
+            if (Buffer.Contains("NOTICE") && !Buffer.Contains("PRIVMSG"))
                 NewNotice(new NoticeEventArgs(Buffer));
         }
-
-        public void Disconnect(string Channel)
-        {
-            MessageHandler.WriteRawMessage($"PART {Channel}");
-            NewDisconnect(new DisconnectEventArgs() { Channel = Channel, User = Nick });
-        }
-
-        public void DisconnectFromAll()
-        {
-            foreach (var channel in Channels)
-                Disconnect(channel);
-        }
-
-        public MessageHandler GetMessageHandler() => MessageHandler;
 
         protected virtual void NewRawMessage(string RawMessage)
         {
