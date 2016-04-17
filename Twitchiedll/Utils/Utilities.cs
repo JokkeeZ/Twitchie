@@ -5,5 +5,7 @@
         internal static bool ConvertToBoolean(string str) => str.Equals("1");
 
         internal static bool BufferElementEquals(string buffer, int element, string str) => buffer.Split(' ')[element] == str;
+
+        internal static bool IsPrivMsg(string str) => str.Contains("PRIVMSG");
     }
 }

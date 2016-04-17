@@ -1,5 +1,4 @@
 ﻿[Events]:
-	- OnHostTarget event
 	- OnClearChat event
 	- OnUserstate event
 	- OnGlobalUserState event

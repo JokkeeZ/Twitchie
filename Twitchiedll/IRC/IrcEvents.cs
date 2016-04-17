@@ -8,9 +8,7 @@ namespace Twitchiedll.IRC
 
         public delegate void NewMessageHandler(MessageEventArgs e);
 
-        public delegate void PingHandler(string Buffer);
-
-        public delegate void DisconnectHandler(DisconnectEventArgs e);
+        public delegate void PingHandler(string RawMessage);
 
         public delegate void RoomStateHandler(RoomStateEventArgs e);
 
@@ -25,5 +23,9 @@ namespace Twitchiedll.IRC
         public delegate void NoticeHandler(NoticeEventArgs e);
 
         public delegate void SubscriberHandler(SubscriberEventArgs e);
+
+        public delegate void HostTargetHandler(HostTargetEventArgs e);
+
+        public delegate void ClearChatHandler(ClearChatEventArgs e);
     }
 }

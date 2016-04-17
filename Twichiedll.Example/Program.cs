@@ -23,7 +23,7 @@ namespace Example
             twitchie.Connect("irc.chat.twitch.tv", 6667);
 
             // Login to twitch chat server with your twitch name and oauth password.
-            twitchie.Login("jokkeez", "jokkeez", Channels, "oauth:password");
+            twitchie.Login("jokkeez", Channels, "oauth:password");
 
             // Make new eventhandlers for events you need
             // OnPing is needed, see this:
