@@ -14,7 +14,7 @@ C# library for parsing Twitch.tv IRC chat messages.
 Twitchie twitchie = new Twitchie();
 
 twitchie.Connect("irc.chat.twitch.tv", 6667);
-twitchie.Login("jokkeez", "jokkeez", new[] { "#jokkeez" }, "oauth:password");
+twitchie.Login("jokkeez", new[] { "#jokkeez" }, "oauth:password");
 
 twitchie.OnPing += OnPing;
 twitchie.OnMessage += OnMessage;
