@@ -21,12 +21,6 @@ void OnMessage(MessageEventArgs e) { }
 void OnPing(string RawMessage) { }
 ```
 
-# OnDisconnect
-- Called when you disconnect
-```cs
-void OnDisconnect(DisconnectEventArgs e) { }
-```
-
 # OnRoomState
 - Called when joining a channel and every time one of the chat room settings, like slow mode, change.
 ```cs
