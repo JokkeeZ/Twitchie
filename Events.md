@@ -18,7 +18,7 @@ void OnMessage(MessageEventArgs e) { }
 - Called when buffer contains PING
 - About every 5 minutes Twitch server will send you **PING :tmi.twitch.tv** and you should send back **PONG :tmi.twitch.tv** so connection keeps alive.
 ```cs
-void OnPing() { }
+void OnPing(string RawMessage) { }
 ```
 
 # OnDisconnect
@@ -67,4 +67,10 @@ void OnNotice(NoticeEventArgs e) { }
 - Called when someone resubscribes or subscribes on channel.
 ```cs
 void OnSubscribe(SubscriberEventArgs e) { }
+```
+
+# OnHostTarget
+- Called when host started or stopped.
+```cs
+void OnHostTarget(HostTargetEventArgs e) { }
 ```
