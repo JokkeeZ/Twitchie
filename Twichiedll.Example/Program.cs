@@ -12,7 +12,7 @@ namespace Example
 
         static void Main(string[] args)
         {
-            // List containing channels where client should join.
+            // Array containing channels where client should join.
             string[] Channels = new string[]
             {
                 "#jokkeez",
