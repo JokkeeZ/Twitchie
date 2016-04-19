@@ -50,7 +50,9 @@
     <Compile Include="IRC\Events\PartEventArgs.cs" />
     <Compile Include="IRC\Events\RoomStateEventArgs.cs" />
     <Compile Include="IRC\Events\SubscriberEventArgs.cs" />
+    <Compile Include="IRC\EventType.cs" />
     <Compile Include="IRC\Exceptions\LoginException.cs" />
+    <Compile Include="IRC\IrcEventHandlers.cs" />
     <Compile Include="IRC\IrcEvents.cs" />
     <Compile Include="IRC\MessageHandler.cs" />
     <Compile Include="IRC\Twitchie.cs" />
