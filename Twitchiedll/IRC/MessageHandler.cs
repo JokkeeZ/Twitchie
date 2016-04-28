@@ -28,7 +28,19 @@ namespace Twitchiedll.IRC
             WriteRawMessage(builder.ToString());
         }
 
-        public void SendMessage(string Channel, string Message) 
-            => WriteRawMessage($"PRIVMSG {Channel} :{Message}");
+        public void SendMessage(MessageType MessageType, string Channel, string Message)
+        {
+            switch (MessageType)
+            {
+                case MessageType.ACTION:
+                    WriteRawMessage($"PRIVMSG {Channel} :/me {Message}");
+                    break;
+
+                case MessageType.MESSAGE:
+                    WriteRawMessage($"PRIVMSG {Channel} :{Message}");
+                    break;
+            }
+        }
+            
     }
 }

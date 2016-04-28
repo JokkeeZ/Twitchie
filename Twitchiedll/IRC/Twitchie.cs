@@ -1,19 +1,18 @@
 ﻿using System.IO;
 using System.Net.Sockets;
-using System.Collections.Generic;
-using Twitchiedll.IRC.Exceptions;
 using Twitchiedll.IRC.Events;
 
 namespace Twitchiedll.IRC
 {
     public partial class Twitchie
     {
-        private string Nick, Buffer;
+        private string Nickname, Buffer;
         private string[] Channels;
 
         private TextReader Input;
         private TextWriter Output;
         private MessageHandler MessageHandler;
+
         private TcpClient ClientSocket = new TcpClient();
         private NamesEventArgs NamesEventArgs = new NamesEventArgs();
 
@@ -34,7 +33,7 @@ namespace Twitchiedll.IRC
 
         public void Login(string Nick, string[] Channels, string Password)
         {
-            this.Nick = Nick.ToLower();
+            Nickname = Nick.ToLower();
             this.Channels = Channels;
 
             try
@@ -53,7 +52,7 @@ namespace Twitchiedll.IRC
                     "CAP REQ :twitch.tv/tags"
                 });
             }
-            catch (LoginException ex)
+            catch (IOException ex)
             {
                 throw ex;
             }
@@ -90,6 +89,7 @@ namespace Twitchiedll.IRC
                 Disconnect(channel);
         }
 
-        public MessageHandler GetMessageHandler() => MessageHandler;
+        public MessageHandler GetMessageHandler() 
+            => MessageHandler;
     }
 }

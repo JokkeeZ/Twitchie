@@ -2,8 +2,5 @@
 
 namespace Twitchiedll.IRC.Events
 {
-    public class NamesEventArgs
-    {
-        public List<string> Names = new List<string>();
-    }
+    public class NamesEventArgs : List<string> { }
 }

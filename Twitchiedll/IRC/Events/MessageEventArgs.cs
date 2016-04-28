@@ -4,21 +4,12 @@ namespace Twitchiedll.IRC.Events
 {
     public class MessageEventArgs
     {
-        public enum Usertype
-        {
-            Viewer,
-            Moderator,
-            GlobalModerator,
-            Admin,
-            Staff
-        }
-
         public int UserID { get; internal set; }
         public string Username { get; internal set; }
         public string DisplayName { get; internal set; }
         public string ColorHEX { get; internal set; }
         public string Message { get; internal set; }
-        public Usertype UserType { get; internal set; }
+        public UserType UserType { get; internal set; }
         public string Channel { get; internal set; }
         public bool Subscriber { get; internal set; }
         public bool Turbo { get; internal set; }
@@ -98,19 +89,19 @@ namespace Twitchiedll.IRC.Events
                     switch (part.Split('=')[1].Split(' ')[0])
                     {
                         case "mod":
-                            UserType = Usertype.Moderator;
+                            UserType = UserType.MODERATOR;
                             break;
                         case "global_mod":
-                            UserType = Usertype.GlobalModerator;
+                            UserType = UserType.GLOBALMODERATOR;
                             break;
                         case "admin":
-                            UserType = Usertype.Admin;
+                            UserType = UserType.ADMIN;
                             break;
                         case "staff":
-                            UserType = Usertype.Staff;
+                            UserType = UserType.STAFF;
                             break;
                         default:
-                            UserType = Usertype.Viewer;
+                            UserType = UserType.VIEWER;
                             break;
                     }
                     continue;

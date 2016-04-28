@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using Twitchiedll.Utils;
-
-namespace Twitchiedll.IRC.Events
+﻿namespace Twitchiedll.IRC.Events
 {
     public class RoomStateEventArgs
     {
@@ -13,22 +10,25 @@ namespace Twitchiedll.IRC.Events
 
         public RoomStateEventArgs(string IrcMessage)
         {
-            if (IrcMessage.Split(';').Count() > 3)
+            if (IrcMessage.Split(';').Length > 3)
             {
-                if (IrcMessage.Split(';')[0].Split('=').Count() > 1)
+                if (IrcMessage.Split(';')[0].Split('=').Length > 1)
                     BroadcasterLanguage = IrcMessage.Split(';')[0].Split('=')[1];
 
-                if (IrcMessage.Split(';')[1].Split('=').Count() > 1)
-                    r9k = Utilities.ConvertToBoolean(IrcMessage.Split(';')[1].Split('=')[1]);
+                if (IrcMessage.Split(';')[1].Split('=').Length > 1)
+                    r9k = ToBoolean(IrcMessage.Split(';')[1].Split('=')[1]);
 
-                if (IrcMessage.Split(';')[2].Split('=').Count() > 1)
-                    SlowMode = Utilities.ConvertToBoolean(IrcMessage.Split(';')[2].Split('=')[1]);
+                if (IrcMessage.Split(';')[2].Split('=').Length > 1)
+                    SlowMode = ToBoolean(IrcMessage.Split(';')[2].Split('=')[1]);
 
-                if (IrcMessage.Split(';')[3].Split('=').Count() > 1)
-                    SubOnly = Utilities.ConvertToBoolean(IrcMessage.Split(';')[3].Split('=')[1]);
+                if (IrcMessage.Split(';')[3].Split('=').Length > 1)
+                    SubOnly = ToBoolean(IrcMessage.Split(';')[3].Split('=')[1]);
 
                 Channel = "#" + IrcMessage.Split('#')[1];
             }
         }
+
+        private bool ToBoolean(string str)
+            => str == "1";
     }
 }

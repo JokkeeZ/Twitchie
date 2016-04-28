@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using Twitchiedll.IRC.Events;
-using Twitchiedll.Utils;
 
 namespace Twitchiedll.IRC
 {
@@ -44,11 +43,11 @@ namespace Twitchiedll.IRC
                     break;
 
                 case EventType.ON_NAMES_STARTING:
-                    NamesEventArgs.Names.AddRange(Buffer.Split(':').Last().Split(' '));
+                    NamesEventArgs.AddRange(Buffer.Split(':').Last().Split(' '));
                     break;
 
                 case EventType.ON_NAMES_ENDING:
-                    OnNames?.Invoke(new NamesEventArgs());
+                    OnNames?.Invoke(NamesEventArgs);
                     break;
 
                 case EventType.ON_JOIN:

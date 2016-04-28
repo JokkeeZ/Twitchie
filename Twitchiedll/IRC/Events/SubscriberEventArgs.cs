@@ -2,7 +2,7 @@
 {
     public class SubscriberEventArgs
     {
-        public string Name { get; set; }
+        public string Username { get; set; }
         public string Channel { get; set; }
         public int Months { get; set; }
         public string Message { get; set; }
@@ -12,7 +12,7 @@
             string[] SplittedMessage = IrcMessage.Split(' ');
             int months;
 
-            Name = SplittedMessage[3].Remove(0, 1);
+            Username = SplittedMessage[3].Remove(0, 1);
             Channel = SplittedMessage[2];
             Message = IrcMessage.Split(':')[2];
 
