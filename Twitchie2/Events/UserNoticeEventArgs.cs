@@ -17,6 +17,8 @@ namespace Twitchie2.Events
 		public string RoomId { get; }
 		public string SystemMsg { get; }
 		public string UserId { get; }
+		public string Channel { get; }
+		public string Message { get; }
 
 		public UserNoticeMsgParams MsgParams { get; } = new UserNoticeMsgParams();
 
@@ -231,6 +233,15 @@ namespace Twitchie2.Events
 			if (msg.TryGetValue("msg-param-threshold", out var msgParamThreshold))
 			{
 				MsgParams.MsgParamThreshold = msgParamThreshold;
+			}
+
+			var splittedMessage = message.Split(' ');
+			Channel = splittedMessage[3];
+
+			// Did user enter a message? 
+			if (splittedMessage.Length > 3)
+			{
+				Message = message.Substring(message.IndexOf(Channel) + (Channel.Length + 2));
 			}
 		}
 	}
