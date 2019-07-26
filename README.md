@@ -5,7 +5,7 @@ C# library for parsing Twitch.tv IRC chat messages.
 
 # How to use it?
 1. Download .zip
-2. Build it with Visual Studio 2015 (C# 6.0)
+2. Build solution with Visual Studio
 3. Add .dll to your project
 4. Have fun.
 
