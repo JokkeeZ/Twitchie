@@ -1,23 +1,23 @@
 # Twitchie
-C# library for parsing Twitch.tv IRC chat messages.
-
-
+C# library for handling Twitch.tv IRC events.
 
 # How to use it?
-1. Download .zip
+1. Clone or download repository
 2. Build solution with Visual Studio
-3. Add .dll to your project
-4. Have fun.
+3. Add built library to your project
+4. Have fun
 
-# Example? ([See also this](https://github.com/JokkeeZ/Twitchie/blob/master/Twichiedll.Example/Program.cs))
+# Example? ([See also this](https://github.com/JokkeeZ/Twitchie/blob/Twitchie2/Twitchie2.Example/Program.cs))
 ```cs
-Twitchie twitchie = new Twitchie();
+using (var twitchie = new Twitchie())
+{
+    twitchie.Connect();
+    twitchie.Login("jokkeez", "oauth:password");
 
-twitchie.Connect("irc.chat.twitch.tv", 6667);
-twitchie.Login("jokkeez", new[] { "#jokkeez" }, "oauth:password");
+    twitchie.SetDefaultChannels(new[] { "#jokkeez" });
 
-twitchie.OnPing += OnPing;
-twitchie.OnMessage += OnMessage;
+    twitchie.OnRawMessage += OnRawMessage;
 
-twitchie.Listen();
+    await twitchie.ListenAsync();
+}
 ```
