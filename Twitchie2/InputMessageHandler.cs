@@ -2,11 +2,11 @@
 
 namespace Twitchie2
 {
-	public class MessageHandler
+	public class InputMessageHandler
 	{
 		private readonly TextWriter writer;
 
-		public MessageHandler(TextWriter writer)
+		public InputMessageHandler(TextWriter writer)
 		{
 			this.writer = writer;
 		}

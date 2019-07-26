@@ -15,9 +15,7 @@ namespace Twitchie2
 		private TextWriter output;
 		private readonly TcpClient tcpClient;
 
-		public bool IsConnected => tcpClient.Connected;
-
-		public MessageHandler MessageHandler { get; private set; }
+		public InputMessageHandler MessageHandler { get; private set; }
 
 		internal string Buffer { get; private set; }
 
@@ -45,7 +43,7 @@ namespace Twitchie2
 
 				input = new StreamReader(tcpClient.GetStream());
 				output = new StreamWriter(tcpClient.GetStream());
-				MessageHandler = new MessageHandler(output);
+				MessageHandler = new InputMessageHandler(output);
 			}
 			catch (SocketException ex)
 			{
