@@ -23,6 +23,18 @@ namespace Twitchie2
 			return false;
 		}
 
+		public bool TryGetIntValue(string key, out int value)
+		{
+			if (TryGetValue(key, out var val))
+			{
+				value = int.Parse(val);
+				return true;
+			}
+
+			value = 0;
+			return false;
+		}
+
 		public static KeyValueMessage Parse(string message)
 		{
 			var msg = new KeyValueMessage();

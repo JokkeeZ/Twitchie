@@ -20,29 +20,17 @@ namespace Twitchie2.Events
 
 		public MessageEventArgs(string message)
 		{
-			foreach (var part in message.Split(';'))
+			var msg = KeyValueMessage.Parse(message);
+
+			if (msg.TryGetValue("badge-info", out var badgeInfo))
 			{
-				if (part.Contains("!"))
-				{
-					Channel = part.Split('#')[1].Split(' ')[0];
-					continue;
-				}
+				BadgeInfo = badgeInfo;
+			}
 
-				if (part.Contains("badge-info="))
+			if (msg.TryGetValue("badges", out var badges))
+			{
+				if (badges.Contains("/"))
 				{
-					BadgeInfo = part.Split('=')[1];
-					continue;
-				}
-
-				if (part.Contains("badges="))
-				{
-					var badges = part.Split('=')[1];
-					// There is no badges
-					if (!badges.Contains("/"))
-					{
-						continue;
-					}
-
 					if (!badges.Contains(","))
 					{
 						Badges.Add(new TwitchBadge
@@ -50,8 +38,6 @@ namespace Twitchie2.Events
 							Badge = badges.Split('/')[0],
 							Version = badges.Split('/')[1]
 						});
-
-						continue;
 					}
 
 					foreach (var badge in badges.Split(','))
@@ -62,60 +48,51 @@ namespace Twitchie2.Events
 							Version = badge.Split('/')[1]
 						});
 					}
-
-					continue;
-				}
-
-				if (part.Contains("bits="))
-				{
-					Bits = part.Split('=')[1];
-					continue;
-				}
-
-				if (part.Contains("color="))
-				{
-					Color = part.Split('=')[1];
-					continue;
-				}
-
-				if (part.Contains("display-name="))
-				{
-					DisplayName = part.Split('=')[1];
-					continue;
-				}
-
-				if (part.Contains("emotes="))
-				{
-					Emotes = part.Split('=')[1];
-					continue;
-				}
-
-				if (part.Contains("id="))
-				{
-					MessageId = part.Split('=')[1];
-					continue;
-				}
-
-				if (part.Contains("mod="))
-				{
-					Mod = int.Parse(part.Split('=')[1]) == 1;
-					continue;
-				}
-
-				if (part.Contains("room-id="))
-				{
-					RoomId = part.Split('=')[1];
-					continue;
-				}
-
-				if (part.Contains("user-id="))
-				{
-					UserId = part.Split('=')[1];
-					continue;
 				}
 			}
 
-			Message = message.Split(new string[] { $" PRIVMSG #{Channel} :" }, StringSplitOptions.None)[1];
+			if (msg.TryGetValue("bits", out var bits))
+			{
+				Bits = bits;
+			}
+
+			if (msg.TryGetValue("color", out var color))
+			{
+				Color = color;
+			}
+
+			if (msg.TryGetValue("display-name", out var displayName))
+			{
+				DisplayName = displayName;
+			}
+
+			if (msg.TryGetValue("emotes", out var emotes))
+			{
+				Emotes = emotes;
+			}
+
+			if (msg.TryGetValue("id", out var id))
+			{
+				MessageId = id;
+			}
+
+			if (msg.TryGetIntValue("mod", out var mod))
+			{
+				Mod = mod == 1;
+			}
+
+			if (msg.TryGetValue("room-id", out var roomId))
+			{
+				RoomId = roomId;
+			}
+
+			if (msg.TryGetValue("user-id", out var userId))
+			{
+				UserId = userId;
+			}
+
+			Channel = message.Split(' ')[3];
+			Message = message.Split(new string[] { $" PRIVMSG {Channel} :" }, StringSplitOptions.None)[1];
 		}
 	}
 }

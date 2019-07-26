@@ -14,19 +14,19 @@ namespace Twitchie2.Events
 		{
 			var msg = KeyValueMessage.Parse(message);
 
-			if (msg.TryGetValue("room-id", out var roomId))
+			if (msg.TryGetIntValue("room-id", out var roomId))
 			{
-				RoomId = int.Parse(roomId);
+				RoomId = roomId;
 			}
 
-			if (msg.TryGetValue("ban-duration", out var duration))
+			if (msg.TryGetIntValue("ban-duration", out var duration))
 			{
-				BanDuration = int.Parse(duration);
+				BanDuration = duration;
 			}
 
-			if (msg.TryGetValue("target-user-id", out var userId))
+			if (msg.TryGetIntValue("target-user-id", out var userId))
 			{
-				TargetUserId = int.Parse(userId);
+				TargetUserId = userId;
 			}
 
 			var split = message.Split(' ');

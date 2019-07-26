@@ -7,7 +7,7 @@ using Twitchie2.Events;
 
 namespace Twitchie2
 {
-	public partial class Twitchie : IDisposable
+	public class Twitchie : IDisposable
 	{
 		private readonly List<string> channels;
 
@@ -28,6 +28,7 @@ namespace Twitchie2
 		public event EventHandler<NoticeEventArgs> OnNotice;
 		public event EventHandler<HostTargetEventArgs> OnHostTarget;
 		public event EventHandler<ClearChatEventArgs> OnClearChat;
+		public event EventHandler<UserNoticeEventArgs> OnUserNotice;
 
 		public Twitchie()
 		{
@@ -133,6 +134,10 @@ namespace Twitchie2
 
 				case EventType.RoomState:
 					OnRoomState?.Invoke(this, new RoomStateEventArgs(Buffer));
+					break;
+
+				case EventType.UserNotice:
+					OnUserNotice?.Invoke(this, new UserNoticeEventArgs(Buffer));
 					break;
 
 				case EventType.Ping:

@@ -13,7 +13,7 @@ namespace Twitchie2
 
 		public void WriteRawMessage(string message)
 		{
-			writer.Write(message + "\r\n");
+			writer.Write($"{message}\r\n");
 			writer.Flush();
 		}
 

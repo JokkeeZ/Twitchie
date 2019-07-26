@@ -1,66 +1,32 @@
-﻿namespace Twitchie2
+﻿using System.Collections.Generic;
+
+namespace Twitchie2
 {
 	public class EventParser
 	{
+		static readonly Dictionary<string, EventType> events = new Dictionary<string, EventType>
+		{
+			{ "PRIVMSG", EventType.Message },
+			{ "ROOMSTATE",EventType.RoomState },
+			{ "NOTICE", EventType.Notice },
+			{ "HOSTTARGET", EventType.HostTarget },
+			{ "CLEARCHAT", EventType.ClearChat },
+			{ "PING", EventType.Ping },
+			{ "MODE", EventType.Mode },
+			{ "353", EventType.NotImplemented },
+			{ "366", EventType.NotImplemented },
+			{ "JOIN", EventType.Join },
+			{ "PART", EventType.Part },
+			{ "USERNOTICE", EventType.UserNotice }
+		};
+
 		public static EventType ParseEventType(string buffer)
 		{
 			var command = ParseCommand(buffer);
 
-			if (command == "PRIVMSG")
+			if (events.TryGetValue(command, out var eventType))
 			{
-				return EventType.Message;
-			}
-
-			if (command == "ROOMSTATE")
-			{
-				return EventType.RoomState;
-			}
-
-			if (command == "NOTICE")
-			{
-				return EventType.Notice;
-			}
-
-			if (command == "HOSTTARGET")
-			{
-				return EventType.HostTarget;
-			}
-
-			if (command == "CLEARCHAT")
-			{
-				return EventType.ClearChat;
-			}
-
-			if (command == "PING")
-			{
-				return EventType.Ping;
-			}
-
-			if (command == "MODE")
-			{
-				return EventType.Mode;
-			}
-
-			// Names starting
-			if (command == "353")
-			{
-				return EventType.NotImplemented;
-			}
-
-			// Names ending
-			if (command == "366")
-			{
-				return EventType.NotImplemented;
-			}
-
-			if (command == "JOIN")
-			{
-				return EventType.Join;
-			}
-
-			if (command == "PART")
-			{
-				return EventType.Part;
+				return eventType;
 			}
 
 			return EventType.NotImplemented;
@@ -69,6 +35,7 @@
 		static string ParseCommand(string buffer)
 		{
 			var splitted = buffer.Split(' ');
+
 			if (buffer[0] == '@')
 			{
 				return splitted[2];

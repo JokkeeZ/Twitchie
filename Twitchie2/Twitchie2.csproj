@@ -7,7 +7,7 @@
     <ProjectGuid>{1FA9EAFF-12AC-4FB2-8013-770E6904E6DE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Twitchie</RootNamespace>
+    <RootNamespace>Twitchie2</RootNamespace>
     <AssemblyName>Twitchie</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -38,6 +38,7 @@
     <Compile Include="Events\ClearChatEventArgs.cs" />
     <Compile Include="Events\HostTargetEventArgs.cs" />
     <Compile Include="Events\JoinEventArgs.cs" />
+    <Compile Include="Events\UserNoticeEventArgs.cs" />
     <Compile Include="KeyValueMessage.cs" />
     <Compile Include="Events\MessageEventArgs.cs" />
     <Compile Include="Events\ModeEventArgs.cs" />

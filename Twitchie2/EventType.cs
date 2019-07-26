@@ -13,6 +13,7 @@
 		Subscribe,
 		HostTarget,
 		ClearChat,
+		UserNotice,
 		NotImplemented
 	}
 }

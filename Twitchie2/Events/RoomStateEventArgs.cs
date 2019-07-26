@@ -50,29 +50,29 @@ namespace Twitchie2.Events
 			{
 				var msg = KeyValueMessage.Parse(message);
 
-				if (msg.TryGetValue("emote-only", out var emoteOnly))
+				if (msg.TryGetIntValue("emote-only", out var emoteOnly))
 				{
-					EmoteOnly = int.Parse(emoteOnly) == 1;
+					EmoteOnly = emoteOnly == 1;
 				}
 
-				if (msg.TryGetValue("followers-only", out var followersOnly))
+				if (msg.TryGetIntValue("followers-only", out var followersOnly))
 				{
-					FollowersOnly = int.Parse(followersOnly);
+					FollowersOnly = followersOnly;
 				}
 
-				if (msg.TryGetValue("r9k", out var r9k))
+				if (msg.TryGetIntValue("r9k", out var r9k))
 				{
-					R9k = int.Parse(r9k) == 1;
+					R9k = r9k == 1;
 				}
 
-				if (msg.TryGetValue("slow", out var slowMode))
+				if (msg.TryGetIntValue("slow", out var slowMode))
 				{
-					SlowMode = int.Parse(slowMode);
+					SlowMode = slowMode;
 				}
 
-				if (msg.TryGetValue("subs-only", out var subsOnly))
+				if (msg.TryGetIntValue("subs-only", out var subsOnly))
 				{
-					SubOnly = int.Parse(subsOnly) == 1;
+					SubOnly = subsOnly == 1;
 				}
 			}
 		}
