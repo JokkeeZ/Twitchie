@@ -18,28 +18,7 @@ namespace Twitchie2.Events
 		public string SystemMsg { get; }
 		public string UserId { get; }
 
-		#region Additional parameters
-		public int MsgParamCumulativeMonths { get; }
-		public string MsgParamDisplayName { get; }
-		public string MsgParamLogin { get; }
-		public string MsgParamMonths { get; }
-		public int MsgParamPromoGiftTotal { get; }
-		public string MsgParamPromoName { get; }
-		public string MsgParamRecipientDisplayName { get; }
-		public string MsgParamRecipientId { get; }
-		public string MsgParamRecipientUsername { get; }
-		public string MsgParamSenderLogin { get; }
-		public string MsgParamSenderName { get; }
-
-		//TODO: Actually boolean, don't know if its coming as int or bool on stream.
-		public string MsgParamShouldShareStreak { get; }
-		public int MsgParamStreakMonths { get; }
-		public string MsgParamSubPlan { get; }
-		public string MsgParamSubPlanName { get; }
-		public int MsgParamViewerCount { get; }
-		public string MsgParamRitualName { get; }
-		public string MsgParamThreshold { get; }
-		#endregion
+		public UserNoticeMsgParams MsgParams { get; } = new UserNoticeMsgParams();
 
 		public UserNoticeEventArgs(string message)
 		{
@@ -166,109 +145,93 @@ namespace Twitchie2.Events
 			// Additional parameters
 			if (msg.TryGetIntValue("msg-param-cumulative-months", out var msgParamCumulativeMonths))
 			{
-				MsgParamCumulativeMonths = msgParamCumulativeMonths;
+				MsgParams.MsgParamCumulativeMonths = msgParamCumulativeMonths;
 			}
 
 			if (msg.TryGetValue("msg-param-displayName", out var msgParamDisplayName))
 			{
-				MsgParamDisplayName = msgParamDisplayName;
+				MsgParams.MsgParamDisplayName = msgParamDisplayName;
 			}
 
 			if (msg.TryGetValue("msg-param-login", out var msgParamLogin))
 			{
-				MsgParamLogin = msgParamLogin;
+				MsgParams.MsgParamLogin = msgParamLogin;
 			}
 
 			if (msg.TryGetValue("msg-param-months", out var msgParamMonths))
 			{
-				MsgParamMonths = msgParamMonths;
+				MsgParams.MsgParamMonths = msgParamMonths;
 			}
 
 			if (msg.TryGetIntValue("msg-param-promo-gift-total", out var msgParamPromoGiftTotal))
 			{
-				MsgParamPromoGiftTotal = msgParamPromoGiftTotal;
+				MsgParams.MsgParamPromoGiftTotal = msgParamPromoGiftTotal;
 			}
 
 			if (msg.TryGetValue("msg-param-promo-name", out var msgParamPromoName))
 			{
-				MsgParamPromoName = msgParamPromoName;
+				MsgParams.MsgParamPromoName = msgParamPromoName;
 			}
 
 			if (msg.TryGetValue("msg-param-recipient-display-name", out var msgParamRecipientDisplayName))
 			{
-				MsgParamRecipientDisplayName = msgParamRecipientDisplayName;
+				MsgParams.MsgParamRecipientDisplayName = msgParamRecipientDisplayName;
 			}
 
 			if (msg.TryGetValue("msg-param-recipient-id", out var msgParamRecipientId))
 			{
-				MsgParamRecipientId = msgParamRecipientId;
+				MsgParams.MsgParamRecipientId = msgParamRecipientId;
 			}
 
 			if (msg.TryGetValue("msg-param-recipient-user-name", out var msgParamRecipientUsername))
 			{
-				MsgParamRecipientUsername = msgParamRecipientUsername;
+				MsgParams.MsgParamRecipientUsername = msgParamRecipientUsername;
 			}
 
 			if (msg.TryGetValue("msg-param-sender-login", out var msgParamSenderLogin))
 			{
-				MsgParamSenderLogin = msgParamSenderLogin;
+				MsgParams.MsgParamSenderLogin = msgParamSenderLogin;
 			}
 
 			if (msg.TryGetValue("msg-param-sender-name", out var msgParamSenderName))
 			{
-				MsgParamSenderName = msgParamSenderName;
+				MsgParams.MsgParamSenderName = msgParamSenderName;
 			}
 
-			if (msg.TryGetValue("msg-param-should-share-streak", out var msgParamShouldShareStreak))
+			if (msg.TryGetIntValue("msg-param-should-share-streak", out var msgParamShouldShareStreak))
 			{
-				MsgParamShouldShareStreak = msgParamShouldShareStreak;
+				MsgParams.MsgParamShouldShareStreak = msgParamShouldShareStreak == 1;
 			}
 
 			if (msg.TryGetIntValue("msg-param-streak-months", out var msgParamStreakMonths))
 			{
-				MsgParamStreakMonths = msgParamStreakMonths;
+				MsgParams.MsgParamStreakMonths = msgParamStreakMonths;
 			}
 
 			if (msg.TryGetValue("msg-param-sub-plan", out var msgParamSubPlan))
 			{
-				MsgParamSubPlan = msgParamSubPlan;
+				MsgParams.MsgParamSubPlan = msgParamSubPlan;
 			}
 
 			if (msg.TryGetValue("msg-param-sub-plan-name", out var msgParamSubPlanName))
 			{
-				MsgParamSubPlanName = msgParamSubPlanName;
+				MsgParams.MsgParamSubPlanName = msgParamSubPlanName;
 			}
 
 			if (msg.TryGetIntValue("msg-param-viewerCount", out var msgParamViewerCount))
 			{
-				MsgParamViewerCount = msgParamViewerCount;
+				MsgParams.MsgParamViewerCount = msgParamViewerCount;
 			}
 
 			if (msg.TryGetValue("msg-param-ritual-name", out var msgParamRitualName))
 			{
-				MsgParamRitualName = msgParamRitualName;
+				MsgParams.MsgParamRitualName = msgParamRitualName;
 			}
 
 			if (msg.TryGetValue("msg-param-threshold", out var msgParamThreshold))
 			{
-				MsgParamThreshold = msgParamThreshold;
+				MsgParams.MsgParamThreshold = msgParamThreshold;
 			}
 		}
-	}
-
-	public enum NoticeType
-	{
-		Sub,
-		Resub,
-		SubGift,
-		AnonSubGift,
-		SubMysteryGift,
-		GiftPaidUpgrade,
-		RewardGift,
-		AnonGiftPaidUpgrade,
-		Raid,
-		Unraid,
-		Ritual,
-		BitsBadgetier
 	}
 }
