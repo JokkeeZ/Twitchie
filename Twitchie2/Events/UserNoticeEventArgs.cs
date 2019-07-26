@@ -239,7 +239,7 @@ namespace Twitchie2.Events
 			Channel = splittedMessage[3];
 
 			// Did user enter a message? 
-			if (splittedMessage.Length > 3)
+			if (splittedMessage.Length > 4)
 			{
 				Message = message.Substring(message.IndexOf(Channel) + (Channel.Length + 2));
 			}
