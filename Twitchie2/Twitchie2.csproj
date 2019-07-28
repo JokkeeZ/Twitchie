@@ -49,7 +49,7 @@
     <Compile Include="Events\RoomStateEventArgs.cs" />
     <Compile Include="TwitchBadge.cs" />
     <Compile Include="EventType.cs" />
-    <Compile Include="InputMessageHandler.cs" />
+    <Compile Include="OutputMessageHandler.cs" />
     <Compile Include="MessageType.cs" />
     <Compile Include="EventParser.cs" />
     <Compile Include="Twitchie.cs" />

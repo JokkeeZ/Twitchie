@@ -1,12 +1,13 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Twitchie2
 {
-	public class InputMessageHandler
+	public class OutputMessageHandler : IDisposable
 	{
 		private readonly TextWriter writer;
 
-		public InputMessageHandler(TextWriter writer)
+		public OutputMessageHandler(TextWriter writer)
 		{
 			this.writer = writer;
 		}
@@ -31,5 +32,18 @@ namespace Twitchie2
 			}
 		}
 
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		private void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				writer?.Dispose();
+			}
+		}
 	}
 }

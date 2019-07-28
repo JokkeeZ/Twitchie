@@ -9,13 +9,11 @@ namespace Twitchie2
 {
 	public class Twitchie : IDisposable
 	{
-		private readonly List<string> channels;
-
 		private TextReader input;
-		private TextWriter output;
-		private readonly TcpClient tcpClient;
+		private TcpClient tcpClient;
 
-		public InputMessageHandler MessageHandler { get; private set; }
+		public List<string> Channels { get; }
+		public OutputMessageHandler MessageHandler { get; private set; }
 
 		internal string Buffer { get; private set; }
 
@@ -32,19 +30,17 @@ namespace Twitchie2
 
 		public Twitchie()
 		{
-			channels = new List<string>();
-			tcpClient = new TcpClient();
+			Channels = new List<string>();
 		}
 
 		public void Connect()
 		{
 			try
 			{
+				tcpClient = new TcpClient();
 				tcpClient.Connect("irc.chat.twitch.tv", 6667);
 
-				input = new StreamReader(tcpClient.GetStream());
-				output = new StreamWriter(tcpClient.GetStream());
-				MessageHandler = new InputMessageHandler(output);
+				InitializeStreams();
 			}
 			catch (SocketException ex)
 			{
@@ -54,9 +50,15 @@ namespace Twitchie2
 			}
 		}
 
+		private void InitializeStreams()
+		{
+			input = new StreamReader(tcpClient.GetStream());
+			MessageHandler = new OutputMessageHandler(new StreamWriter(tcpClient.GetStream()));
+		}
+
 		public void SetDefaultChannels(IEnumerable<string> channels)
 		{
-			this.channels.AddRange(channels);
+			Channels.AddRange(channels);
 		}
 
 		public void Login(string nickname, string password)
@@ -92,17 +94,18 @@ namespace Twitchie2
 				var eventType = EventParser.ParseEventType(Buffer);
 				HandleEvent(eventType);
 
-				if (Buffer.Split(' ')[1] == "001" && channels.Count > 0)
+				if (Buffer.Split(' ')[1] == "001" && Channels.Count > 0)
 				{
-					channels.ForEach(channel => JoinChannel(channel));
+					Channels.ForEach(channel => JoinChannel(channel));
 				}
 			}
+
 			return false;
 		}
 
-		public void HandleEvent(EventType e)
+		public void HandleEvent(EventType eventType)
 		{
-			switch (e)
+			switch (eventType)
 			{
 				case EventType.ClearChat:
 					OnClearChat?.Invoke(this, new ClearChatEventArgs(Buffer));
@@ -153,9 +156,9 @@ namespace Twitchie2
 				channel = $"#{channel}";
 			}
 
-			if (!channels.Contains(channel))
+			if (!Channels.Contains(channel))
 			{
-				channels.Add(channel);
+				Channels.Add(channel);
 			}
 
 			MessageHandler.WriteRawMessage($"JOIN {channel}");
@@ -163,19 +166,19 @@ namespace Twitchie2
 
 		public void PartChannel(string channel)
 		{
-			if (!channels.Contains(channel))
+			if (!Channels.Contains(channel))
 			{
 				return;
 			}
 
-			channels.Remove(channel);
+			Channels.Remove(channel);
 			MessageHandler.WriteRawMessage($"PART {channel}");
 		}
 
 		public void PartFromAllChannels()
 		{
-			channels.ForEach(channel => PartChannel(channel));
-			channels.Clear();
+			Channels.ForEach(channel => PartChannel(channel));
+			Channels.Clear();
 		}
 
 		public void Dispose()
@@ -189,8 +192,10 @@ namespace Twitchie2
 			if (disposing)
 			{
 				input?.Dispose();
-				output?.Dispose();
 				tcpClient?.Dispose();
+				MessageHandler?.Dispose();
+
+				Channels.Clear();
 			}
 		}
 	}
