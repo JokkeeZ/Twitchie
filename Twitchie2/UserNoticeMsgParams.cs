@@ -2,23 +2,23 @@
 {
 	public class UserNoticeMsgParams
 	{
-		public int MsgParamCumulativeMonths { get; internal set; }
-		public string MsgParamDisplayName { get; internal set; }
-		public string MsgParamLogin { get; internal set; }
-		public string MsgParamMonths { get; internal set; }
-		public int MsgParamPromoGiftTotal { get; internal set; }
-		public string MsgParamPromoName { get; internal set; }
-		public string MsgParamRecipientDisplayName { get; internal set; }
-		public string MsgParamRecipientId { get; internal set; }
-		public string MsgParamRecipientUsername { get; internal set; }
-		public string MsgParamSenderLogin { get; internal set; }
-		public string MsgParamSenderName { get; internal set; }
-		public bool MsgParamShouldShareStreak { get; internal set; }
-		public int MsgParamStreakMonths { get; internal set; }
-		public string MsgParamSubPlan { get; internal set; }
-		public string MsgParamSubPlanName { get; internal set; }
-		public int MsgParamViewerCount { get; internal set; }
-		public string MsgParamRitualName { get; internal set; }
-		public string MsgParamThreshold { get; internal set; }
+		public int CumulativeMonths { get; internal set; }
+		public string DisplayName { get; internal set; }
+		public string Login { get; internal set; }
+		public string Months { get; internal set; }
+		public int PromoGiftTotal { get; internal set; }
+		public string PromoName { get; internal set; }
+		public string RecipientDisplayName { get; internal set; }
+		public string RecipientId { get; internal set; }
+		public string RecipientUsername { get; internal set; }
+		public string SenderLogin { get; internal set; }
+		public string SenderName { get; internal set; }
+		public bool ShouldShareStreak { get; internal set; }
+		public int StreakMonths { get; internal set; }
+		public string SubPlan { get; internal set; }
+		public string SubPlanName { get; internal set; }
+		public int ViewerCount { get; internal set; }
+		public string RitualName { get; internal set; }
+		public string Threshold { get; internal set; }
 	}
 }

@@ -147,92 +147,92 @@ namespace Twitchie2.Events
 			// Additional parameters
 			if (msg.TryGetIntValue("msg-param-cumulative-months", out var msgParamCumulativeMonths))
 			{
-				MsgParams.MsgParamCumulativeMonths = msgParamCumulativeMonths;
+				MsgParams.CumulativeMonths = msgParamCumulativeMonths;
 			}
 
 			if (msg.TryGetValue("msg-param-displayName", out var msgParamDisplayName))
 			{
-				MsgParams.MsgParamDisplayName = msgParamDisplayName;
+				MsgParams.DisplayName = msgParamDisplayName;
 			}
 
 			if (msg.TryGetValue("msg-param-login", out var msgParamLogin))
 			{
-				MsgParams.MsgParamLogin = msgParamLogin;
+				MsgParams.Login = msgParamLogin;
 			}
 
 			if (msg.TryGetValue("msg-param-months", out var msgParamMonths))
 			{
-				MsgParams.MsgParamMonths = msgParamMonths;
+				MsgParams.Months = msgParamMonths;
 			}
 
 			if (msg.TryGetIntValue("msg-param-promo-gift-total", out var msgParamPromoGiftTotal))
 			{
-				MsgParams.MsgParamPromoGiftTotal = msgParamPromoGiftTotal;
+				MsgParams.PromoGiftTotal = msgParamPromoGiftTotal;
 			}
 
 			if (msg.TryGetValue("msg-param-promo-name", out var msgParamPromoName))
 			{
-				MsgParams.MsgParamPromoName = msgParamPromoName;
+				MsgParams.PromoName = msgParamPromoName;
 			}
 
 			if (msg.TryGetValue("msg-param-recipient-display-name", out var msgParamRecipientDisplayName))
 			{
-				MsgParams.MsgParamRecipientDisplayName = msgParamRecipientDisplayName;
+				MsgParams.RecipientDisplayName = msgParamRecipientDisplayName;
 			}
 
 			if (msg.TryGetValue("msg-param-recipient-id", out var msgParamRecipientId))
 			{
-				MsgParams.MsgParamRecipientId = msgParamRecipientId;
+				MsgParams.RecipientId = msgParamRecipientId;
 			}
 
 			if (msg.TryGetValue("msg-param-recipient-user-name", out var msgParamRecipientUsername))
 			{
-				MsgParams.MsgParamRecipientUsername = msgParamRecipientUsername;
+				MsgParams.RecipientUsername = msgParamRecipientUsername;
 			}
 
 			if (msg.TryGetValue("msg-param-sender-login", out var msgParamSenderLogin))
 			{
-				MsgParams.MsgParamSenderLogin = msgParamSenderLogin;
+				MsgParams.SenderLogin = msgParamSenderLogin;
 			}
 
 			if (msg.TryGetValue("msg-param-sender-name", out var msgParamSenderName))
 			{
-				MsgParams.MsgParamSenderName = msgParamSenderName;
+				MsgParams.SenderName = msgParamSenderName;
 			}
 
 			if (msg.TryGetIntValue("msg-param-should-share-streak", out var msgParamShouldShareStreak))
 			{
-				MsgParams.MsgParamShouldShareStreak = msgParamShouldShareStreak == 1;
+				MsgParams.ShouldShareStreak = msgParamShouldShareStreak == 1;
 			}
 
 			if (msg.TryGetIntValue("msg-param-streak-months", out var msgParamStreakMonths))
 			{
-				MsgParams.MsgParamStreakMonths = msgParamStreakMonths;
+				MsgParams.StreakMonths = msgParamStreakMonths;
 			}
 
 			if (msg.TryGetValue("msg-param-sub-plan", out var msgParamSubPlan))
 			{
-				MsgParams.MsgParamSubPlan = msgParamSubPlan;
+				MsgParams.SubPlan = msgParamSubPlan;
 			}
 
 			if (msg.TryGetValue("msg-param-sub-plan-name", out var msgParamSubPlanName))
 			{
-				MsgParams.MsgParamSubPlanName = msgParamSubPlanName;
+				MsgParams.SubPlanName = msgParamSubPlanName;
 			}
 
 			if (msg.TryGetIntValue("msg-param-viewerCount", out var msgParamViewerCount))
 			{
-				MsgParams.MsgParamViewerCount = msgParamViewerCount;
+				MsgParams.ViewerCount = msgParamViewerCount;
 			}
 
 			if (msg.TryGetValue("msg-param-ritual-name", out var msgParamRitualName))
 			{
-				MsgParams.MsgParamRitualName = msgParamRitualName;
+				MsgParams.RitualName = msgParamRitualName;
 			}
 
 			if (msg.TryGetValue("msg-param-threshold", out var msgParamThreshold))
 			{
-				MsgParams.MsgParamThreshold = msgParamThreshold;
+				MsgParams.Threshold = msgParamThreshold;
 			}
 
 			var splittedMessage = message.Split(' ');
