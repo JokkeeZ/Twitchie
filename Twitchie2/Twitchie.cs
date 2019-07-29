@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using Twitchie2.Events;
 
@@ -9,13 +10,11 @@ namespace Twitchie2
 {
 	public class Twitchie : IDisposable
 	{
-		private TextReader input;
+		private CancellationTokenSource cts;
 		private TcpClient tcpClient;
 
 		public List<string> Channels { get; }
 		public OutputMessageHandler MessageHandler { get; private set; }
-
-		internal string Buffer { get; private set; }
 
 		public event EventHandler<RawMessageEventArgs> OnRawMessage;
 		public event EventHandler<MessageEventArgs> OnMessage;
@@ -37,10 +36,12 @@ namespace Twitchie2
 		{
 			try
 			{
+				cts = new CancellationTokenSource();
+
 				tcpClient = new TcpClient();
 				tcpClient.Connect("irc.chat.twitch.tv", 6667);
 
-				InitializeStreams();
+				MessageHandler = new OutputMessageHandler(new StreamWriter(tcpClient.GetStream()));
 			}
 			catch (SocketException ex)
 			{
@@ -48,12 +49,6 @@ namespace Twitchie2
 				Console.WriteLine(ex.Message);
 #endif
 			}
-		}
-
-		private void InitializeStreams()
-		{
-			input = new StreamReader(tcpClient.GetStream());
-			MessageHandler = new OutputMessageHandler(new StreamWriter(tcpClient.GetStream()));
 		}
 
 		public void SetDefaultChannels(IEnumerable<string> channels)
@@ -80,67 +75,69 @@ namespace Twitchie2
 			}
 		}
 
-		public async Task<bool> ListenAsync()
+		public async Task ListenAsync()
 		{
-			while ((Buffer = await input.ReadLineAsync()) != null)
+			using (var input = new StreamReader(tcpClient.GetStream()))
 			{
-				if (Buffer == null)
+				while (!cts.IsCancellationRequested)
 				{
-					return false;
-				}
+					var buffer = await input?.ReadLineAsync();
+					if (buffer == null)
+					{
+						return;
+					}
 
-				OnRawMessage?.Invoke(this, new RawMessageEventArgs(Buffer));
+					OnRawMessage?.Invoke(this, new RawMessageEventArgs(buffer));
 
-				var eventType = EventParser.ParseEventType(Buffer);
-				HandleEvent(eventType);
+					var eventType = EventParser.ParseEventType(buffer);
+					HandleIrcEvent(eventType, buffer);
 
-				if (Buffer.Split(' ')[1] == "001" && Channels.Count > 0)
-				{
-					Channels.ForEach(channel => JoinChannel(channel));
+					if (buffer.Split(' ')[1] == "001" && Channels.Count > 0)
+					{
+						Channels.ForEach(channel => JoinChannel(channel));
+					}
 				}
 			}
-
-			return false;
 		}
 
-		public void HandleEvent(EventType eventType)
+		public void HandleIrcEvent(EventType eventType, string buffer)
 		{
 			switch (eventType)
 			{
 				case EventType.ClearChat:
-					OnClearChat?.Invoke(this, new ClearChatEventArgs(Buffer));
+					OnClearChat?.Invoke(this, new ClearChatEventArgs(buffer));
 					break;
 
 				case EventType.HostTarget:
-					OnHostTarget?.Invoke(this, new HostTargetEventArgs(Buffer));
+					OnHostTarget?.Invoke(this, new HostTargetEventArgs(buffer));
 					break;
 
 				case EventType.Join:
-					OnJoin?.Invoke(this, new JoinEventArgs(Buffer));
+					OnJoin?.Invoke(this, new JoinEventArgs(buffer));
 					break;
 
 				case EventType.Message:
-					OnMessage?.Invoke(this, new MessageEventArgs(Buffer));
+					OnMessage?.Invoke(this, new MessageEventArgs(buffer));
 					break;
 
 				case EventType.Mode:
-					OnMode?.Invoke(this, new ModeEventArgs(Buffer));
+					OnMode?.Invoke(this, new ModeEventArgs(buffer));
 					break;
 
 				case EventType.Notice:
-					OnNotice?.Invoke(this, new NoticeEventArgs(Buffer));
+					OnNotice?.Invoke(this, new NoticeEventArgs(buffer));
 					break;
 
 				case EventType.Part:
-					OnPart?.Invoke(this, new PartEventArgs(Buffer));
+					OnPart?.Invoke(this, new PartEventArgs(buffer));
 					break;
 
 				case EventType.RoomState:
-					OnRoomState?.Invoke(this, new RoomStateEventArgs(Buffer));
+					OnRoomState?.Invoke(this, new RoomStateEventArgs(buffer));
 					break;
 
 				case EventType.UserNotice:
-					OnUserNotice?.Invoke(this, new UserNoticeEventArgs(Buffer));
+					OnUserNotice?.Invoke(this, new UserNoticeEventArgs(buffer));
 					break;
 
 				case EventType.Ping:
@@ -177,8 +174,25 @@ namespace Twitchie2
 
 		public void PartFromAllChannels()
 		{
-			Channels.ForEach(channel => PartChannel(channel));
-			Channels.Clear();
+			for (var i = 0; i < Channels.Count; ++i)
+			{
+				PartChannel(Channels[i]);
+			}
+		}
+
+		public void Disconnect()
+		{
+			try
+			{
+				PartFromAllChannels();
+				cts?.Cancel();
+			}
+			catch (ObjectDisposedException ex)
+			{
+#if DEBUG
+				Console.WriteLine(ex.Message);
+#endif
+			}
 		}
 
 		public void Dispose()
@@ -191,7 +205,7 @@ namespace Twitchie2
 		{
 			if (disposing)
 			{
-				input?.Dispose();
+				cts?.Dispose();
 				tcpClient?.Dispose();
 				MessageHandler?.Dispose();
 
