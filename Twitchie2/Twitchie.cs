@@ -182,17 +182,8 @@ namespace Twitchie2
 
 		public void Disconnect()
 		{
-			try
-			{
-				PartFromAllChannels();
-				cts?.Cancel();
-			}
-			catch (ObjectDisposedException ex)
-			{
-#if DEBUG
-				Console.WriteLine(ex.Message);
-#endif
-			}
+			PartFromAllChannels();
+			cts?.Cancel();
 		}
 
 		public void Dispose()
