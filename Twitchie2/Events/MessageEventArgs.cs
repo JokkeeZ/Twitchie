@@ -17,9 +17,12 @@ namespace Twitchie2.Events
 		public string RoomId { get; }
 		public string UserId { get; }
 		public string Channel { get; }
+		public string RawMessage { get; }
 
 		public MessageEventArgs(string message)
 		{
+			RawMessage = message;
+
 			var msg = KeyValueMessage.Parse(message);
 
 			if (msg.TryGetValue("badge-info", out var badgeInfo))

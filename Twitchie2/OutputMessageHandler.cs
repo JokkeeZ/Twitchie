@@ -32,6 +32,11 @@ namespace Twitchie2
 			}
 		}
 
+		public void Whisper(string channel, string receiver, string message)
+		{
+			SendMessage(MessageType.Message, channel, $"/w {receiver} {message}");
+		}
+
 		public void Dispose()
 		{
 			Dispose(true);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading;
@@ -26,27 +27,27 @@ namespace Twitchie2
 		public event EventHandler<HostTargetEventArgs> OnHostTarget;
 		public event EventHandler<ClearChatEventArgs> OnClearChat;
 		public event EventHandler<UserNoticeEventArgs> OnUserNotice;
+		public event EventHandler<MentionEventArgs> OnMention;
 
 		public Twitchie()
 		{
 			Channels = new List<string>();
 		}
 
-		public void Connect()
+		public async Task ConnectAsync()
 		{
 			try
 			{
 				cts = new CancellationTokenSource();
-
 				tcpClient = new TcpClient();
-				tcpClient.Connect("irc.chat.twitch.tv", 6667);
 
+				await tcpClient.ConnectAsync("irc.chat.twitch.tv", 6667);
 				MessageHandler = new OutputMessageHandler(new StreamWriter(tcpClient.GetStream()));
 			}
 			catch (SocketException ex)
 			{
 #if DEBUG
-				Console.WriteLine(ex.Message);
+				Debug.WriteLine(ex.Message);
 #endif
 			}
 		}
@@ -66,11 +67,19 @@ namespace Twitchie2
 				MessageHandler.WriteRawMessage("CAP REQ :twitch.tv/membership");
 				MessageHandler.WriteRawMessage("CAP REQ :twitch.tv/commands");
 				MessageHandler.WriteRawMessage("CAP REQ :twitch.tv/tags");
+
+				OnMessage += (sender, args) =>
+				{
+					if (args.Message.ToLower().Contains($"@{nickname.ToLower()}"))
+					{
+						OnMention?.Invoke(this, new MentionEventArgs(args.RawMessage));
+					}
+				};
 			}
 			catch (IOException ex)
 			{
 #if DEBUG
-				Console.WriteLine(ex.Message);
+				Debug.WriteLine(ex.Message);
 #endif
 			}
 		}
@@ -100,7 +109,7 @@ namespace Twitchie2
 			}
 		}
 
-		public void HandleIrcEvent(EventType eventType, string buffer)
+		private void HandleIrcEvent(EventType eventType, string buffer)
 		{
 			switch (eventType)
 			{

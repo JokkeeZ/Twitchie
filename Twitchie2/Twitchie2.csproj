@@ -38,6 +38,7 @@
     <Compile Include="Events\ClearChatEventArgs.cs" />
     <Compile Include="Events\HostTargetEventArgs.cs" />
     <Compile Include="Events\JoinEventArgs.cs" />
+    <Compile Include="Events\MentionEventArgs.cs" />
     <Compile Include="NoticeType.cs" />
     <Compile Include="Events\UserNoticeEventArgs.cs" />
     <Compile Include="KeyValueMessage.cs" />
