@@ -86,25 +86,24 @@ namespace Twitchie2
 
 		public async Task ListenAsync()
 		{
-			using (var input = new StreamReader(tcpClient.GetStream()))
+			using var input = new StreamReader(tcpClient.GetStream());
+
+			while (!cts.IsCancellationRequested)
 			{
-				while (!cts.IsCancellationRequested)
+				var buffer = await input?.ReadLineAsync();
+				if (buffer == null)
 				{
-					var buffer = await input?.ReadLineAsync();
-					if (buffer == null)
-					{
-						return;
-					}
+					return;
+				}
 
-					OnRawMessage?.Invoke(this, new RawMessageEventArgs(buffer));
+				OnRawMessage?.Invoke(this, new RawMessageEventArgs(buffer));
 
-					var eventType = EventParser.ParseEventType(buffer);
-					HandleIrcEvent(eventType, buffer);
+				var eventType = EventParser.ParseEventType(buffer);
+				HandleIrcEvent(eventType, buffer);
 
-					if (buffer.Split(' ')[1] == "001" && Channels.Count > 0)
-					{
-						Channels.ForEach(channel => JoinChannel(channel));
-					}
+				if (buffer.Split(' ')[1] == "001" && Channels.Count > 0)
+				{
+					Channels.ForEach(channel => JoinChannel(channel));
 				}
 			}
 		}
@@ -201,7 +200,7 @@ namespace Twitchie2
 			GC.SuppressFinalize(this);
 		}
 
-		private void Dispose(bool disposing)
+		protected virtual void Dispose(bool disposing)
 		{
 			if (disposing)
 			{

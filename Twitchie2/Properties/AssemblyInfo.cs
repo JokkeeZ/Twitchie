@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Twitchie2")]
-[assembly: AssemblyCopyright("Copyright © JokkeeZ 2016 - 2019")]
+[assembly: AssemblyCopyright("Copyright © JokkeeZ 2016 - 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

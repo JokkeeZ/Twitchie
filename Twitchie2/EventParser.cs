@@ -2,7 +2,7 @@
 
 namespace Twitchie2
 {
-	public class EventParser
+	public static class EventParser
 	{
 		static readonly Dictionary<string, EventType> events = new Dictionary<string, EventType>
 		{

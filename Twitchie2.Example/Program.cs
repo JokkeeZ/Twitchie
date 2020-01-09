@@ -8,17 +8,16 @@ namespace Twitchie2.Example
 	{
 		static async Task Main(string[] args)
 		{
-			using (var twitchie = new Twitchie())
-			{
-				twitchie.Connect();
-				twitchie.Login("jokkeez", "oauth:password");
+			using var twitchie = new Twitchie();
 
-				twitchie.SetDefaultChannels(new[] { "#jokkeez" });
+			await twitchie.ConnectAsync();
+			twitchie.Login("jokkeez", "oauth:password");
 
-				twitchie.OnRawMessage += OnRawMessage;
+			twitchie.SetDefaultChannels(new[] { "#jokkeez" });
 
-				await twitchie.ListenAsync();
-			}
+			twitchie.OnRawMessage += OnRawMessage;
+
+			await twitchie.ListenAsync();
 		}
 
 		static void OnRawMessage(object sender, RawMessageEventArgs e)

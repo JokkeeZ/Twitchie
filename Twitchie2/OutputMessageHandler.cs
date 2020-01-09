@@ -43,7 +43,7 @@ namespace Twitchie2
 			GC.SuppressFinalize(this);
 		}
 
-		private void Dispose(bool disposing)
+		protected virtual void Dispose(bool disposing)
 		{
 			if (disposing)
 			{
