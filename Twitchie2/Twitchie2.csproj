@@ -52,7 +52,6 @@
     <Compile Include="TwitchBadge.cs" />
     <Compile Include="EventType.cs" />
     <Compile Include="OutputMessageHandler.cs" />
-    <Compile Include="MessageType.cs" />
     <Compile Include="EventParser.cs" />
     <Compile Include="Twitchie.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

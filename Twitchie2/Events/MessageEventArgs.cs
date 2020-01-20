@@ -38,7 +38,7 @@ namespace Twitchie2.Events
 					{
 						Badges.Add(new TwitchBadge
 						{
-							Badge = badges.Split('/')[0],
+							Name = badges.Split('/')[0],
 							Version = badges.Split('/')[1]
 						});
 					}
@@ -47,7 +47,7 @@ namespace Twitchie2.Events
 					{
 						Badges.Add(new TwitchBadge
 						{
-							Badge = badge.Split('/')[0],
+							Name = badge.Split('/')[0],
 							Version = badge.Split('/')[1]
 						});
 					}
@@ -95,7 +95,7 @@ namespace Twitchie2.Events
 			}
 
 			Channel = message.Split(' ')[3];
-			Message = message.Split(new string[] { $" PRIVMSG {Channel} :" }, StringSplitOptions.None)[1];
+			Message = message.Split(new[] { $" PRIVMSG {Channel} :" }, StringSplitOptions.None)[1];
 		}
 	}
 }

@@ -9,13 +9,16 @@ using Twitchie2.Events;
 
 namespace Twitchie2
 {
-	public class Twitchie : IDisposable
+	public class Twitchie : OutputMessageHandler
 	{
 		private CancellationTokenSource cts;
 		private TcpClient tcpClient;
 
+		private string nickname;
+
 		public List<string> Channels { get; }
-		public OutputMessageHandler MessageHandler { get; private set; }
+
+		public string OwnChannel => $"#{nickname}";
 
 		public event EventHandler<RawMessageEventArgs> OnRawMessage;
 		public event EventHandler<MessageEventArgs> OnMessage;
@@ -29,10 +32,7 @@ namespace Twitchie2
 		public event EventHandler<UserNoticeEventArgs> OnUserNotice;
 		public event EventHandler<MentionEventArgs> OnMention;
 
-		public Twitchie()
-		{
-			Channels = new List<string>();
-		}
+		public Twitchie() : base() => Channels = new List<string>();
 
 		public async Task ConnectAsync()
 		{
@@ -42,7 +42,8 @@ namespace Twitchie2
 				tcpClient = new TcpClient();
 
 				await tcpClient.ConnectAsync("irc.chat.twitch.tv", 6667);
-				MessageHandler = new OutputMessageHandler(new StreamWriter(tcpClient.GetStream()));
+
+				InitializeStream(new StreamWriter(tcpClient.GetStream()));
 			}
 			catch (SocketException ex)
 			{
@@ -59,18 +60,20 @@ namespace Twitchie2
 
 		public void Login(string nickname, string password)
 		{
+			this.nickname = nickname.ToLower();
+
 			try
 			{
-				MessageHandler.WriteRawMessage($"PASS {password}");
-				MessageHandler.WriteRawMessage($"NICK {nickname.ToLower()}");
+				WriteRawMessage($"PASS {password}");
+				WriteRawMessage($"NICK {this.nickname}");
 
-				MessageHandler.WriteRawMessage("CAP REQ :twitch.tv/membership");
-				MessageHandler.WriteRawMessage("CAP REQ :twitch.tv/commands");
-				MessageHandler.WriteRawMessage("CAP REQ :twitch.tv/tags");
+				WriteRawMessage("CAP REQ :twitch.tv/membership");
+				WriteRawMessage("CAP REQ :twitch.tv/commands");
+				WriteRawMessage("CAP REQ :twitch.tv/tags");
 
 				OnMessage += (sender, args) =>
 				{
-					if (args.Message.ToLower().Contains($"@{nickname.ToLower()}"))
+					if (args.Message.ToLower().Contains($"@{this.nickname}"))
 					{
 						OnMention?.Invoke(this, new MentionEventArgs(args.RawMessage));
 					}
@@ -149,7 +152,7 @@ namespace Twitchie2
 					break;
 
 				case EventType.Ping:
-					MessageHandler.WriteRawMessage("PONG :tmi.twitch.tv");
+					WriteRawMessage("PONG :tmi.twitch.tv");
 					break;
 			}
 		}
@@ -166,7 +169,7 @@ namespace Twitchie2
 				Channels.Add(channel);
 			}
 
-			MessageHandler.WriteRawMessage($"JOIN {channel}");
+			WriteRawMessage($"JOIN {channel}");
 		}
 
 		public void PartChannel(string channel)
@@ -177,7 +180,7 @@ namespace Twitchie2
 			}
 
 			Channels.Remove(channel);
-			MessageHandler.WriteRawMessage($"PART {channel}");
+			WriteRawMessage($"PART {channel}");
 		}
 
 		public void PartFromAllChannels()
@@ -194,21 +197,22 @@ namespace Twitchie2
 			cts?.Cancel();
 		}
 
-		public void Dispose()
+		public new void Dispose()
 		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing)
+		protected new virtual void Dispose(bool disposing)
 		{
 			if (disposing)
 			{
 				cts?.Dispose();
 				tcpClient?.Dispose();
-				MessageHandler?.Dispose();
 
 				Channels.Clear();
+
+				base.Dispose();
 			}
 		}
 	}

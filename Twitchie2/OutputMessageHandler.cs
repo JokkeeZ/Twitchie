@@ -3,13 +3,13 @@ using System.IO;
 
 namespace Twitchie2
 {
-	public class OutputMessageHandler : IDisposable
+	public abstract class OutputMessageHandler : IDisposable
 	{
-		private readonly TextWriter writer;
+		protected TextWriter writer;
 
-		public OutputMessageHandler(TextWriter writer)
+		public void InitializeStream(StreamWriter w)
 		{
-			this.writer = writer;
+			writer = w;
 		}
 
 		public void WriteRawMessage(string message)
@@ -18,24 +18,14 @@ namespace Twitchie2
 			writer.Flush();
 		}
 
-		public void SendMessage(MessageType messageType, string channel, string message)
-		{
-			switch (messageType)
-			{
-				case MessageType.Action:
-					WriteRawMessage($"PRIVMSG {channel} :/me {message}");
-					break;
+		public void SendMessage(string channel, string message)
+			=> WriteRawMessage($"PRIVMSG {channel} :{message}");
 
-				case MessageType.Message:
-					WriteRawMessage($"PRIVMSG {channel} :{message}");
-					break;
-			}
-		}
+		public void SendAction(string channel, string message)
+			=> WriteRawMessage($"PRIVMSG {channel} :/me {message}");
 
 		public void Whisper(string channel, string receiver, string message)
-		{
-			SendMessage(MessageType.Message, channel, $"/w {receiver} {message}");
-		}
+			=> SendMessage(channel, $"/w {receiver} {message}");
 
 		public void Dispose()
 		{
