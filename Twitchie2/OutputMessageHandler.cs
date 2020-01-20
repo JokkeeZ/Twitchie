@@ -7,10 +7,7 @@ namespace Twitchie2
 	{
 		protected TextWriter writer;
 
-		public void InitializeStream(StreamWriter w)
-		{
-			writer = w;
-		}
+		public void InitializeStream(StreamWriter w) => writer = w;
 
 		public void WriteRawMessage(string message)
 		{
@@ -24,7 +21,10 @@ namespace Twitchie2
 		public void SendAction(string channel, string message)
 			=> WriteRawMessage($"PRIVMSG {channel} :/me {message}");
 
-		public void Whisper(string channel, string receiver, string message)
+		public void SendMention(string channel, string user, string message)
+			=> SendMessage(channel, $"@{user}, {message}");
+
+		public void SendWhisper(string channel, string receiver, string message)
 			=> SendMessage(channel, $"/w {receiver} {message}");
 
 		public void Dispose()
@@ -36,9 +36,7 @@ namespace Twitchie2
 		protected virtual void Dispose(bool disposing)
 		{
 			if (disposing)
-			{
 				writer?.Dispose();
-			}
 		}
 	}
 }

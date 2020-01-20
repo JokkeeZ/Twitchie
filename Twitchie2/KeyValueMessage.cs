@@ -2,14 +2,11 @@
 
 namespace Twitchie2
 {
-	class KeyValueMessage
+	internal class KeyValueMessage
 	{
 		private readonly Dictionary<string, string> keyValuePairs;
 
-		public KeyValueMessage()
-		{
-			keyValuePairs = new Dictionary<string, string>();
-		}
+		public KeyValueMessage() => keyValuePairs = new Dictionary<string, string>();
 
 		public bool TryGetValue(string key, out string value)
 		{
@@ -42,9 +39,7 @@ namespace Twitchie2
 			{
 				var split = part.Split('=');
 				if (split[0].StartsWith("@"))
-				{
 					split[0] = split[0].Substring(1);
-				}
 
 				msg.keyValuePairs.Add(split[0], split[1]);
 			}

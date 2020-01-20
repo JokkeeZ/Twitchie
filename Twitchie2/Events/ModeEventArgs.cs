@@ -10,19 +10,15 @@ namespace Twitchie2.Events
 
 		public ModeEventArgs(string message)
 		{
-			var splittedMessage = message.Split(' ');
+			var splitted = message.Split(' ');
 
-			if (splittedMessage[2].StartsWith("#"))
-			{
-				Channel = splittedMessage[2];
-			}
+			if (splitted[2].StartsWith("#"))
+				Channel = splitted[2];
 
-			if (splittedMessage[3].Equals("+o"))
-			{
+			if (splitted[3].Equals("+o"))
 				AddingModerator = true;
-			}
 
-			Username = splittedMessage[4];
+			Username = splitted[4];
 		}
 	}
 }

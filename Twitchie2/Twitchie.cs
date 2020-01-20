@@ -30,7 +30,7 @@ namespace Twitchie2
 		public event EventHandler<HostTargetEventArgs> OnHostTarget;
 		public event EventHandler<ClearChatEventArgs> OnClearChat;
 		public event EventHandler<UserNoticeEventArgs> OnUserNotice;
-		public event EventHandler<MentionEventArgs> OnMention;
+		public event EventHandler<MessageEventArgs> OnMention;
 
 		public Twitchie() : base() => Channels = new List<string>();
 
@@ -53,10 +53,7 @@ namespace Twitchie2
 			}
 		}
 
-		public void SetDefaultChannels(IEnumerable<string> channels)
-		{
-			Channels.AddRange(channels);
-		}
+		public void SetDefaultChannels(IEnumerable<string> channels) => Channels.AddRange(channels);
 
 		public void Login(string nickname, string password)
 		{
@@ -74,9 +71,7 @@ namespace Twitchie2
 				OnMessage += (sender, args) =>
 				{
 					if (args.Message.ToLower().Contains($"@{this.nickname}"))
-					{
-						OnMention?.Invoke(this, new MentionEventArgs(args.RawMessage));
-					}
+						OnMention?.Invoke(this, new MessageEventArgs(this, args.RawMessage));
 				};
 			}
 			catch (IOException ex)
@@ -95,9 +90,7 @@ namespace Twitchie2
 			{
 				var buffer = await input?.ReadLineAsync();
 				if (buffer == null)
-				{
 					return;
-				}
 
 				OnRawMessage?.Invoke(this, new RawMessageEventArgs(buffer));
 
@@ -105,9 +98,7 @@ namespace Twitchie2
 				HandleIrcEvent(eventType, buffer);
 
 				if (buffer.Split(' ')[1] == "001" && Channels.Count > 0)
-				{
 					Channels.ForEach(channel => JoinChannel(channel));
-				}
 			}
 		}
 
@@ -128,7 +119,7 @@ namespace Twitchie2
 					break;
 
 				case EventType.Message:
-					OnMessage?.Invoke(this, new MessageEventArgs(buffer));
+					OnMessage?.Invoke(this, new MessageEventArgs(this, buffer));
 					break;
 
 				case EventType.Mode:
@@ -160,14 +151,10 @@ namespace Twitchie2
 		public void JoinChannel(string channel)
 		{
 			if (channel[0] != '#')
-			{
 				channel = $"#{channel}";
-			}
 
 			if (!Channels.Contains(channel))
-			{
 				Channels.Add(channel);
-			}
 
 			WriteRawMessage($"JOIN {channel}");
 		}
@@ -175,21 +162,13 @@ namespace Twitchie2
 		public void PartChannel(string channel)
 		{
 			if (!Channels.Contains(channel))
-			{
 				return;
-			}
 
 			Channels.Remove(channel);
 			WriteRawMessage($"PART {channel}");
 		}
 
-		public void PartFromAllChannels()
-		{
-			for (var i = 0; i < Channels.Count; ++i)
-			{
-				PartChannel(Channels[i]);
-			}
-		}
+		public void PartFromAllChannels() => Channels.ForEach(x => PartChannel(x));
 
 		public void Disconnect()
 		{

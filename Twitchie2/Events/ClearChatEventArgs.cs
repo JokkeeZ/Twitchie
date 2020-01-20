@@ -15,27 +15,19 @@ namespace Twitchie2.Events
 			var msg = KeyValueMessage.Parse(message);
 
 			if (msg.TryGetIntValue("room-id", out var roomId))
-			{
 				RoomId = roomId;
-			}
 
 			if (msg.TryGetIntValue("ban-duration", out var duration))
-			{
 				BanDuration = duration;
-			}
 
 			if (msg.TryGetIntValue("target-user-id", out var userId))
-			{
 				TargetUserId = userId;
-			}
 
 			var split = message.Split(' ');
 			Channel = split[3];
 
 			if (split.Length > 3)
-			{
 				TimeoutUsername = split[4].Substring(1);
-			}
 		}
 	}
 }

@@ -14,9 +14,7 @@ namespace Twitchie2.Events
 			var splittedMessage = message.Split(' ');
 
 			if (int.TryParse(splittedMessage[4], out var viewers))
-			{
 				Viewers = viewers;
-			}
 
 			Channel = splittedMessage[2].Substring(1);
 

@@ -9,10 +9,10 @@ namespace Twitchie2.Events
 
 		public PartEventArgs(string message)
 		{
-			var splittedMessage = message.Split(' ');
+			var splitted = message.Split(' ');
 
-			Username = splittedMessage[0].Split(':')[1].Split('!')[0];
-			Channel = splittedMessage[2];
+			Username = splitted[0].Split(':')[1].Split('!')[0];
+			Channel = splitted[2];
 		}
 	}
 }

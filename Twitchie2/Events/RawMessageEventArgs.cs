@@ -6,9 +6,6 @@ namespace Twitchie2.Events
 	{
 		public string Message { get; }
 
-		public RawMessageEventArgs(string message)
-		{
-			Message = message;
-		}
+		public RawMessageEventArgs(string message) => Message = message;
 	}
 }
