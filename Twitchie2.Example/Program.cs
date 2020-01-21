@@ -6,7 +6,7 @@ namespace Twitchie2.Example
 {
 	class Program
 	{
-		static async Task Main(string[] args)
+		static async Task Main()
 		{
 			using var twitchie = new Twitchie();
 
@@ -15,14 +15,14 @@ namespace Twitchie2.Example
 
 			twitchie.SetDefaultChannels(new[] { "#jokkeez" });
 
-			twitchie.OnRawMessage += OnRawMessage;
+			twitchie.OnMessage += OnMessage;
 
 			await twitchie.ListenAsync();
 		}
 
-		static void OnRawMessage(object sender, RawMessageEventArgs e)
+		static void OnMessage(object sender, MessageEventArgs e)
 		{
-			Console.WriteLine(e.Message);
+			Console.WriteLine($"User: {e.DisplayName} on channel: {e.Channel}: {e.Message}");
 		}
 	}
 }
