@@ -2,9 +2,9 @@
 {
 	public class TwitchBadge
 	{
-		public string Name { get; set; }
+		public string Name { get; }
 
-		public string Version { get; set; }
+		public string Version { get; }
 
 		public TwitchBadge() { }
 

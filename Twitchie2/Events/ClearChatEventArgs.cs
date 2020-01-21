@@ -1,33 +1,27 @@
-﻿using System;
+﻿using Twitchie2.Messages;
 
 namespace Twitchie2.Events
 {
-	public class ClearChatEventArgs : EventArgs
+	public class ClearChatEventArgs : TwitchieEventArgs
 	{
-		public int RoomId { get; }
-		public string Channel { get; }
-		public string TimeoutUsername { get; }
 		public int BanDuration { get; }
+		public int RoomId { get; }
 		public int TargetUserId { get; }
+		public string TargetUsername { get; }
 
-		public ClearChatEventArgs(string message)
+		public ClearChatEventArgs(Twitchie twitchie, TwitchIrcMessage message) : base(twitchie)
 		{
-			var msg = KeyValueMessage.Parse(message);
+			var arg = message.PopDictionaryArgument();
 
-			if (msg.TryGetIntValue("room-id", out var roomId))
-				RoomId = roomId;
+			BanDuration = arg.GetValue<int>("ban-duration");
+			RoomId = arg.GetValue<int>("room-id");
+			TargetUserId = arg.GetValue<int>("target-user-id");
 
-			if (msg.TryGetIntValue("ban-duration", out var duration))
-				BanDuration = duration;
+			//:tmi.twitch.tv CLEARCHAT
+			message.SkipArguments(2);
 
-			if (msg.TryGetIntValue("target-user-id", out var userId))
-				TargetUserId = userId;
-
-			var split = message.Split(' ');
-			Channel = split[3];
-
-			if (split.Length > 3)
-				TimeoutUsername = split[4].Substring(1);
+			Channel = message.PopArgument();
+			TargetUsername = message.GetRemainingMessage(true);
 		}
 	}
 }

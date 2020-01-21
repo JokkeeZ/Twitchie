@@ -1,28 +1,23 @@
-﻿using System;
+﻿using Twitchie2.Messages;
 
 namespace Twitchie2.Events
 {
-	public class HostTargetEventArgs : EventArgs
+	public class HostTargetEventArgs : TwitchieEventArgs
 	{
 		public int Viewers { get; }
-		public string Channel { get; }
 		public string TargetChannel { get; }
 		public bool IsStarting { get; }
 
-		public HostTargetEventArgs(string message)
+		public HostTargetEventArgs(Twitchie twitchie, TwitchIrcMessage message) : base(twitchie)
 		{
-			var splittedMessage = message.Split(' ');
+			message.SkipArguments(2);
 
-			if (int.TryParse(splittedMessage[4], out var viewers))
-				Viewers = viewers;
+			Channel = message.PopArgument();
 
-			Channel = splittedMessage[2].Substring(1);
-
-			if (splittedMessage[3] != ":-")
-			{
-				TargetChannel = splittedMessage[3].Replace(":", "");
-				IsStarting = true;
-			}
+			var targetChannel = message.PopArgument();
+			IsStarting = targetChannel != ":-";
+			TargetChannel = IsStarting ? targetChannel.Substring(1) : string.Empty;
+			Viewers = message.GetRemainingArgument<int>();
 		}
 	}
 }

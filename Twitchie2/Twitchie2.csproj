@@ -39,10 +39,12 @@
     <Compile Include="Events\ClearChatEventArgs.cs" />
     <Compile Include="Events\HostTargetEventArgs.cs" />
     <Compile Include="Events\JoinEventArgs.cs" />
+    <Compile Include="Messages\ArgumentConverter.cs" />
+    <Compile Include="Messages\TwitchIrcMessage.cs" />
+    <Compile Include="Messages\MessageArgumentDictionary.cs" />
     <Compile Include="TwitchieEventArgs.cs" />
     <Compile Include="NoticeType.cs" />
     <Compile Include="Events\UserNoticeEventArgs.cs" />
-    <Compile Include="KeyValueMessage.cs" />
     <Compile Include="Events\MessageEventArgs.cs" />
     <Compile Include="Events\ModeEventArgs.cs" />
     <Compile Include="Events\NoticeEventArgs.cs" />
@@ -55,7 +57,6 @@
     <Compile Include="EventParser.cs" />
     <Compile Include="Twitchie.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UserNoticeMsgParams.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

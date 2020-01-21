@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Twitchie2.Messages;
 
 namespace Twitchie2.Events
 {
-	public class UserNoticeEventArgs : EventArgs
+	public class UserNoticeEventArgs : TwitchieEventArgs
 	{
 		public string BadgeInfo { get; }
 		public List<TwitchBadge> Badges { get; } = new List<TwitchBadge>();
@@ -14,129 +15,88 @@ namespace Twitchie2.Events
 		public string LoginName { get; }
 		public bool Mod { get; }
 		public NoticeType MsgId { get; }
-		public string RoomId { get; }
+		public int RoomId { get; }
 		public string SystemMsg { get; }
-		public string UserId { get; }
-		public string Channel { get; }
+		public int UserId { get; }
 		public string Message { get; }
+		public string Timestamp { get; }
 
 		public UserNoticeMsgParams MsgParams { get; } = new UserNoticeMsgParams();
 
-		public UserNoticeEventArgs(string message)
+		public UserNoticeEventArgs(Twitchie twitchie, TwitchIrcMessage message) : base(twitchie)
 		{
-			var msg = KeyValueMessage.Parse(message);
+			var arg = message.PopDictionaryArgument();
+			BadgeInfo = arg.GetValue<string>("badge-info");
 
-			if (msg.TryGetValue("badge-info", out var badgeInfo))
-				BadgeInfo = badgeInfo;
-
-			if (msg.TryGetValue("badges", out var badges) && (badges.Contains("/")))
+			var badges = arg.GetValue<string>("badges").Split(',');
+			if (badges.Length > 0)
 			{
-				if (!badges.Contains(","))
-				{
-					var split = badges.Split('/');
-					Badges.Add(new TwitchBadge(split[0], split[1]));
-				}
-
-				foreach (var badge in badges.Split(','))
+				foreach (var badge in badges)
 				{
 					var split = badge.Split('/');
 					Badges.Add(new TwitchBadge(split[0], split[1]));
 				}
 			}
 
-			if (msg.TryGetValue("color", out var color))
-				Color = color;
+			Color = arg.GetValue<string>("color");
+			DisplayName = arg.GetValue<string>("display-name");
+			Emotes = arg.GetValue<string>("emotes");
+			MessageId = arg.GetValue<string>("id");
+			LoginName = arg.GetValue<string>("login");
+			Mod = arg.GetValue<int>("mod") == 1;
+			MsgId = (NoticeType)Enum.Parse(typeof(NoticeType), arg.GetValue<string>("msg-id"), true);
+			RoomId = arg.GetValue<int>("room-id");
+			SystemMsg = arg.GetValue<string>("system-msg");
+			Timestamp = arg.GetValue<string>("tmi-sent-ts");
+			UserId = arg.GetValue<int>("user-id");
 
-			if (msg.TryGetValue("display-name", out var displayName))
-				DisplayName = displayName;
+			// Additional parameters.
+			MsgParams.CumulativeMonths = arg.GetValue<int>("msg-param-cumulative-months");
+			MsgParams.DisplayName = arg.GetValue<string>("msg-param-displayName");
+			MsgParams.Login = arg.GetValue<string>("msg-param-login");
+			MsgParams.Months = arg.GetValue<int>("msg-param-months");
+			MsgParams.PromoGiftTotal = arg.GetValue<int>("msg-param-promo-gift-total");
+			MsgParams.PromoName = arg.GetValue<string>("msg-param-promo-name");
+			MsgParams.RecipientDisplayName = arg.GetValue<string>("msg-param-recipient-display-name");
+			MsgParams.RecipientId = arg.GetValue<string>("msg-param-recipient-id");
+			MsgParams.RecipientUsername = arg.GetValue<string>("msg-param-recipient-user-name");
+			MsgParams.SenderLogin = arg.GetValue<string>("msg-param-sender-login");
+			MsgParams.SenderName = arg.GetValue<string>("msg-param-sender-name");
+			MsgParams.ShouldShareStreak = arg.GetValue<int>("msg-param-should-share-streak") == 1;
+			MsgParams.StreakMonths = arg.GetValue<int>("msg-param-streak-months");
+			MsgParams.SubPlan = arg.GetValue<string>("msg-param-sub-plan");
+			MsgParams.SubPlanName = arg.GetValue<string>("msg-param-sub-plan-name");
+			MsgParams.ViewerCount = arg.GetValue<int>("msg-param-viewerCount");
+			MsgParams.RitualName = arg.GetValue<string>("msg-param-ritual-name");
+			MsgParams.Threshold = arg.GetValue<string>("msg-param-threshold");
 
-			if (msg.TryGetValue("emotes", out var emotes))
-				Emotes = emotes;
+			// :tmi.twitch.tv USERNOTICE
+			message.SkipArguments(2);
 
-			if (msg.TryGetValue("id", out var id))
-				MessageId = id;
-
-			if (msg.TryGetValue("login", out var login))
-				LoginName = login;
-
-			if (msg.TryGetIntValue("mod", out var mod))
-				Mod = mod == 1;
-
-			if (msg.TryGetValue("msg-id", out var msgId))
-				MsgId = (NoticeType)Enum.Parse(typeof(NoticeType), msgId, true);
-
-			if (msg.TryGetValue("room-id", out var roomId))
-				RoomId = roomId;
-
-			if (msg.TryGetValue("system-msg", out var systemMsg))
-				SystemMsg = systemMsg;
-
-			if (msg.TryGetValue("user-id", out var userId))
-				UserId = userId;
-
-			// Additional parameters
-			if (msg.TryGetIntValue("msg-param-cumulative-months", out var msgParamCumulativeMonths))
-				MsgParams.CumulativeMonths = msgParamCumulativeMonths;
-
-			if (msg.TryGetValue("msg-param-displayName", out var msgParamDisplayName))
-				MsgParams.DisplayName = msgParamDisplayName;
-
-			if (msg.TryGetValue("msg-param-login", out var msgParamLogin))
-				MsgParams.Login = msgParamLogin;
-
-			if (msg.TryGetValue("msg-param-months", out var msgParamMonths))
-				MsgParams.Months = msgParamMonths;
-
-			if (msg.TryGetIntValue("msg-param-promo-gift-total", out var msgParamPromoGiftTotal))
-				MsgParams.PromoGiftTotal = msgParamPromoGiftTotal;
-
-			if (msg.TryGetValue("msg-param-promo-name", out var msgParamPromoName))
-				MsgParams.PromoName = msgParamPromoName;
-
-			if (msg.TryGetValue("msg-param-recipient-display-name", out var msgParamRecipientDisplayName))
-				MsgParams.RecipientDisplayName = msgParamRecipientDisplayName;
-
-			if (msg.TryGetValue("msg-param-recipient-id", out var msgParamRecipientId))
-				MsgParams.RecipientId = msgParamRecipientId;
-
-			if (msg.TryGetValue("msg-param-recipient-user-name", out var msgParamRecipientUsername))
-				MsgParams.RecipientUsername = msgParamRecipientUsername;
-
-			if (msg.TryGetValue("msg-param-sender-login", out var msgParamSenderLogin))
-				MsgParams.SenderLogin = msgParamSenderLogin;
-
-			if (msg.TryGetValue("msg-param-sender-name", out var msgParamSenderName))
-				MsgParams.SenderName = msgParamSenderName;
-
-			if (msg.TryGetIntValue("msg-param-should-share-streak", out var msgParamShouldShareStreak))
-				MsgParams.ShouldShareStreak = msgParamShouldShareStreak == 1;
-
-			if (msg.TryGetIntValue("msg-param-streak-months", out var msgParamStreakMonths))
-				MsgParams.StreakMonths = msgParamStreakMonths;
-
-			if (msg.TryGetValue("msg-param-sub-plan", out var msgParamSubPlan))
-				MsgParams.SubPlan = msgParamSubPlan;
-
-			if (msg.TryGetValue("msg-param-sub-plan-name", out var msgParamSubPlanName))
-				MsgParams.SubPlanName = msgParamSubPlanName;
-
-			if (msg.TryGetIntValue("msg-param-viewerCount", out var msgParamViewerCount))
-				MsgParams.ViewerCount = msgParamViewerCount;
-
-			if (msg.TryGetValue("msg-param-ritual-name", out var msgParamRitualName))
-				MsgParams.RitualName = msgParamRitualName;
-
-			if (msg.TryGetValue("msg-param-threshold", out var msgParamThreshold))
-				MsgParams.Threshold = msgParamThreshold;
-
-			var splittedMessage = message.Split(' ');
-			Channel = splittedMessage[3];
-
-			// Did user enter a message? 
-			if (splittedMessage.Length > 4)
-			{
-				Message = message.Substring(message.IndexOf(Channel) + (Channel.Length + 2));
-			}
+			Channel = message.PopArgument();
+			Message = message.GetRemainingMessage();
 		}
+	}
+
+	public class UserNoticeMsgParams
+	{
+		public int CumulativeMonths { get; internal set; }
+		public string DisplayName { get; internal set; }
+		public string Login { get; internal set; }
+		public int Months { get; internal set; }
+		public int PromoGiftTotal { get; internal set; }
+		public string PromoName { get; internal set; }
+		public string RecipientDisplayName { get; internal set; }
+		public string RecipientId { get; internal set; }
+		public string RecipientUsername { get; internal set; }
+		public string SenderLogin { get; internal set; }
+		public string SenderName { get; internal set; }
+		public bool ShouldShareStreak { get; internal set; }
+		public int StreakMonths { get; internal set; }
+		public string SubPlan { get; internal set; }
+		public string SubPlanName { get; internal set; }
+		public int ViewerCount { get; internal set; }
+		public string RitualName { get; internal set; }
+		public string Threshold { get; internal set; }
 	}
 }

@@ -1,20 +1,21 @@
-﻿using System;
+﻿using Twitchie2.Messages;
 
 namespace Twitchie2.Events
 {
-	public class NoticeEventArgs : EventArgs
+	public class NoticeEventArgs : TwitchieEventArgs
 	{
 		public string MessageId { get; }
-		public string Channel { get; }
 		public string Message { get; }
 
-		public NoticeEventArgs(string message)
+		public NoticeEventArgs(Twitchie twitchie, TwitchIrcMessage message) : base(twitchie)
 		{
-			var splitted = message.Split(' ');
+			MessageId = message.PopKeyValueArgument().value;
 
-			MessageId = splitted[0].Split('=')[1];
-			Channel = splitted[3];
-			Message = message.Split(new[] { $"{Channel} :" }, StringSplitOptions.None)[1];
+			// :tmi.twitch.tv NOTICE
+			message.SkipArguments(2);
+
+			Channel = message.PopArgument();
+			Message = message.GetRemainingMessage(true);
 		}
 	}
 }

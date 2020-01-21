@@ -1,80 +1,29 @@
-﻿using System;
+﻿using Twitchie2.Messages;
 
 namespace Twitchie2.Events
 {
-	public class RoomStateEventArgs : EventArgs
+	public class RoomStateEventArgs : TwitchieEventArgs
 	{
 		public bool EmoteOnly { get; }
-		public int FollowersOnly { get; }
+		public bool FollowersOnly { get; }
 		public bool R9k { get; }
 		public int SlowMode { get; }
 		public bool SubOnly { get; }
-		public string Channel { get; }
 
-		public RoomStateEventArgs(string message)
+		public RoomStateEventArgs(Twitchie twitchie, TwitchIrcMessage message) : base(twitchie)
 		{
-			var splittedMessage = message.Split(' ');
-			Channel = splittedMessage[3];
+			var arg = message.PopDictionaryArgument();
 
-			if (!splittedMessage[0].Contains(";"))
-			{
-				var key = splittedMessage[0].Substring(1);
-				var val = int.Parse(splittedMessage[0].Split('=')[1]);
+			EmoteOnly = arg.GetValue<int>("emote-only") == 1;
+			FollowersOnly = arg.GetValue<int>("followers-only") == 1;
+			R9k = arg.GetValue<int>("r9k") == 1;
+			SlowMode = arg.GetValue<int>("slow");
+			SubOnly = arg.GetValue<int>("subs-only") == 1;
 
-				if (key == "emote-only")
-				{
-					EmoteOnly = val == 1;
-				}
+			// :tmi.twitch.tv ROOMSTATE
+			message.SkipArguments(2);
 
-				if (key == "followers-only")
-				{
-					FollowersOnly = val;
-				}
-
-				if (key == "r9k")
-				{
-					R9k = val == 1;
-				}
-
-				if (key == "slow")
-				{
-					SlowMode = val;
-				}
-
-				if (key == "subs-only")
-				{
-					SubOnly = val == 1;
-				}
-			}
-			else
-			{
-				var msg = KeyValueMessage.Parse(message);
-
-				if (msg.TryGetIntValue("emote-only", out var emoteOnly))
-				{
-					EmoteOnly = emoteOnly == 1;
-				}
-
-				if (msg.TryGetIntValue("followers-only", out var followersOnly))
-				{
-					FollowersOnly = followersOnly;
-				}
-
-				if (msg.TryGetIntValue("r9k", out var r9k))
-				{
-					R9k = r9k == 1;
-				}
-
-				if (msg.TryGetIntValue("slow", out var slowMode))
-				{
-					SlowMode = slowMode;
-				}
-
-				if (msg.TryGetIntValue("subs-only", out var subsOnly))
-				{
-					SubOnly = subsOnly == 1;
-				}
-			}
+			Channel = message.GetRemainingMessage();
 		}
 	}
 }

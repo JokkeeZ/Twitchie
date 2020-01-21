@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Twitchie2.Events;
+using Twitchie2.Messages;
 
 namespace Twitchie2
 {
@@ -43,7 +44,9 @@ namespace Twitchie2
 
 				await tcpClient.ConnectAsync("irc.chat.twitch.tv", 6667);
 
-				InitializeStream(new StreamWriter(tcpClient.GetStream()));
+				if (tcpClient.Connected)
+					InitializeStream(tcpClient.GetStream());
+
 			}
 			catch (SocketException ex)
 			{
@@ -55,31 +58,27 @@ namespace Twitchie2
 
 		public void SetDefaultChannels(IEnumerable<string> channels) => Channels.AddRange(channels);
 
+		public void SetDefaultChannel(string channel) => Channels.Add(channel);
+
 		public void Login(string nickname, string password)
 		{
 			this.nickname = nickname.ToLower();
 
-			try
-			{
-				WriteRawMessage($"PASS {password}");
-				WriteRawMessage($"NICK {this.nickname}");
+			if (writer == null)
+				throw new Exception($"Twitchie needs to be connected to the Twitch IRC, before login is available.");
 
-				WriteRawMessage("CAP REQ :twitch.tv/membership");
-				WriteRawMessage("CAP REQ :twitch.tv/commands");
-				WriteRawMessage("CAP REQ :twitch.tv/tags");
+			WriteIrcMessage($"PASS {password}");
+			WriteIrcMessage($"NICK {this.nickname}");
 
-				OnMessage += (sender, args) =>
-				{
-					if (args.Message.ToLower().Contains($"@{this.nickname}"))
-						OnMention?.Invoke(this, new MessageEventArgs(this, args.RawMessage));
-				};
-			}
-			catch (IOException ex)
+			WriteIrcMessage("CAP REQ :twitch.tv/membership");
+			WriteIrcMessage("CAP REQ :twitch.tv/commands");
+			WriteIrcMessage("CAP REQ :twitch.tv/tags");
+
+			OnMessage += (sender, args) =>
 			{
-#if DEBUG
-				Debug.WriteLine(ex.Message);
-#endif
-			}
+				if (args.Message.ToLower().Contains($"@{this.nickname}"))
+					OnMention?.Invoke(this, new MessageEventArgs(this, new TwitchIrcMessage(args.RawMessage)));
+			};
 		}
 
 		public async Task ListenAsync()
@@ -88,62 +87,62 @@ namespace Twitchie2
 
 			while (!cts.IsCancellationRequested)
 			{
-				var buffer = await input?.ReadLineAsync();
+				var buffer = await input.ReadLineAsync();
 				if (buffer == null)
 					return;
 
 				OnRawMessage?.Invoke(this, new RawMessageEventArgs(buffer));
 
 				var eventType = EventParser.ParseEventType(buffer);
-				HandleIrcEvent(eventType, buffer);
+				HandleIrcEvent(eventType, new TwitchIrcMessage(buffer));
 
 				if (buffer.Split(' ')[1] == "001" && Channels.Count > 0)
 					Channels.ForEach(channel => JoinChannel(channel));
 			}
 		}
 
-		private void HandleIrcEvent(EventType eventType, string buffer)
+		private void HandleIrcEvent(EventType eventType, TwitchIrcMessage msg)
 		{
 			switch (eventType)
 			{
 				case EventType.ClearChat:
-					OnClearChat?.Invoke(this, new ClearChatEventArgs(buffer));
+					OnClearChat?.Invoke(this, new ClearChatEventArgs(this, msg));
 					break;
 
 				case EventType.HostTarget:
-					OnHostTarget?.Invoke(this, new HostTargetEventArgs(buffer));
+					OnHostTarget?.Invoke(this, new HostTargetEventArgs(this, msg));
 					break;
 
 				case EventType.Join:
-					OnJoin?.Invoke(this, new JoinEventArgs(buffer));
+					OnJoin?.Invoke(this, new JoinEventArgs(this, msg));
 					break;
 
 				case EventType.Message:
-					OnMessage?.Invoke(this, new MessageEventArgs(this, buffer));
+					OnMessage?.Invoke(this, new MessageEventArgs(this, msg));
 					break;
 
 				case EventType.Mode:
-					OnMode?.Invoke(this, new ModeEventArgs(buffer));
+					OnMode?.Invoke(this, new ModeEventArgs(this, msg));
 					break;
 
 				case EventType.Notice:
-					OnNotice?.Invoke(this, new NoticeEventArgs(buffer));
+					OnNotice?.Invoke(this, new NoticeEventArgs(this, msg));
 					break;
 
 				case EventType.Part:
-					OnPart?.Invoke(this, new PartEventArgs(buffer));
+					OnPart?.Invoke(this, new PartEventArgs(this, msg));
 					break;
 
 				case EventType.RoomState:
-					OnRoomState?.Invoke(this, new RoomStateEventArgs(buffer));
+					OnRoomState?.Invoke(this, new RoomStateEventArgs(this, msg));
 					break;
 
 				case EventType.UserNotice:
-					OnUserNotice?.Invoke(this, new UserNoticeEventArgs(buffer));
+					OnUserNotice?.Invoke(this, new UserNoticeEventArgs(this, msg));
 					break;
 
 				case EventType.Ping:
-					WriteRawMessage("PONG :tmi.twitch.tv");
+					WriteIrcMessage("PONG :tmi.twitch.tv");
 					break;
 			}
 		}
@@ -156,16 +155,13 @@ namespace Twitchie2
 			if (!Channels.Contains(channel))
 				Channels.Add(channel);
 
-			WriteRawMessage($"JOIN {channel}");
+			WriteIrcMessage($"JOIN {channel}");
 		}
 
 		public void PartChannel(string channel)
 		{
-			if (!Channels.Contains(channel))
-				return;
-
-			Channels.Remove(channel);
-			WriteRawMessage($"PART {channel}");
+			if (Channels.Remove(channel))
+				WriteIrcMessage($"PART {channel}");
 		}
 
 		public void PartFromAllChannels() => Channels.ForEach(x => PartChannel(x));

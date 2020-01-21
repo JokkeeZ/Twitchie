@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Net.Sockets;
 
 namespace Twitchie2
 {
@@ -7,19 +8,19 @@ namespace Twitchie2
 	{
 		protected TextWriter writer;
 
-		public void InitializeStream(StreamWriter w) => writer = w;
+		public void InitializeStream(NetworkStream stream) => writer = new StreamWriter(stream);
 
-		public void WriteRawMessage(string message)
+		public void WriteIrcMessage(string message)
 		{
 			writer.Write($"{message}\r\n");
 			writer.Flush();
 		}
 
 		public void SendMessage(string channel, string message)
-			=> WriteRawMessage($"PRIVMSG {channel} :{message}");
+			=> WriteIrcMessage($"PRIVMSG {channel} :{message}");
 
 		public void SendAction(string channel, string message)
-			=> WriteRawMessage($"PRIVMSG {channel} :/me {message}");
+			=> SendMessage(channel, $"/me {message}");
 
 		public void SendMention(string channel, string user, string message)
 			=> SendMessage(channel, $"@{user}, {message}");

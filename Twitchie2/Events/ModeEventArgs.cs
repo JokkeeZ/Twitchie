@@ -1,24 +1,20 @@
-﻿using System;
+﻿using Twitchie2.Messages;
 
 namespace Twitchie2.Events
 {
-	public class ModeEventArgs : EventArgs
+	public class ModeEventArgs : TwitchieEventArgs
 	{
 		public bool AddingModerator { get; }
 		public string Username { get; }
-		public string Channel { get; }
 
-		public ModeEventArgs(string message)
+		public ModeEventArgs(Twitchie twitchie, TwitchIrcMessage message) : base(twitchie)
 		{
-			var splitted = message.Split(' ');
+			// :jtv MODE #<channel> +o/-o <username>
+			message.SkipArguments(2);
 
-			if (splitted[2].StartsWith("#"))
-				Channel = splitted[2];
-
-			if (splitted[3].Equals("+o"))
-				AddingModerator = true;
-
-			Username = splitted[4];
+			Channel = message.PopArgument();
+			AddingModerator = message.PopArgument() == "+o";
+			Username = message.PopArgument();
 		}
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace Twitchie2
 {
@@ -21,5 +22,11 @@ namespace Twitchie2
 
 		public void SendWhisper(string user, string message)
 			=> twitchie.SendWhisper(Channel, user, message);
+
+		protected void PrintProperties()
+		{
+			foreach (PropertyDescriptor prop in TypeDescriptor.GetProperties(this))
+				Console.WriteLine($"{prop.Name}=#{prop.GetValue(this)}#");
+		}
 	}
 }

@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Twitchie2.Messages;
 
 namespace Twitchie2.Events
 {
@@ -14,60 +14,46 @@ namespace Twitchie2.Events
 		public string MessageId { get; }
 		public string Message { get; }
 		public bool Mod { get; }
-		public string RoomId { get; }
-		public string UserId { get; }
+		public int RoomId { get; }
+		public int UserId { get; }
 		public string RawMessage { get; }
+		public string Timestamp { get; }
 
-		public MessageEventArgs(Twitchie sender, string message) : base(sender)
+		public MessageEventArgs(Twitchie sender, TwitchIrcMessage message) : base(sender)
 		{
-			RawMessage = message;
+			RawMessage = message.Content;
 
-			var msg = KeyValueMessage.Parse(message);
+			var arg = message.PopDictionaryArgument();
 
-			if (msg.TryGetValue("badge-info", out var badgeInfo))
-				BadgeInfo = badgeInfo;
+			BadgeInfo = arg.GetValue<string>("badge-info");
 
-			if (msg.TryGetValue("badges", out var badges) && (badges.Contains("/")))
+			//<badge>/<version>,<badge>/<version>
+			var badges = arg.GetValue<string>("badges").Split(',');
+			if (badges.Length > 0)
 			{
-				if (!badges.Contains(","))
-				{
-					var split = badges.Split('/');
-					Badges.Add(new TwitchBadge(split[0], split[1]));
-				}
-
-				foreach (var badge in badges.Split(','))
+				foreach (var badge in badges)
 				{
 					var split = badge.Split('/');
 					Badges.Add(new TwitchBadge(split[0], split[1]));
 				}
 			}
 
-			if (msg.TryGetValue("bits", out var bits))
-				Bits = bits;
+			Color = arg.GetValue<string>("color");
+			DisplayName = arg.GetValue<string>("display-name");
+			Emotes = arg.GetValue<string>("emotes");
+			MessageId = arg.GetValue<string>("id");
+			Mod = arg.GetValue<int>("mod") == 1;
+			RoomId = arg.GetValue<int>("room-id");
+			Timestamp = arg.GetValue<string>("tmi-sent-ts");
+			UserId = arg.GetValue<int>("user-id");
 
-			if (msg.TryGetValue("color", out var color))
-				Color = color;
+			// :<user>!<user>@<user>.tmi.twitch.tv PRIVMSG
+			message.SkipArguments(2);
 
-			if (msg.TryGetValue("display-name", out var displayName))
-				DisplayName = displayName;
+			Channel = message.PopArgument();
+			Message = message.GetRemainingMessage(true);
 
-			if (msg.TryGetValue("emotes", out var emotes))
-				Emotes = emotes;
-
-			if (msg.TryGetValue("id", out var id))
-				MessageId = id;
-
-			if (msg.TryGetIntValue("mod", out var mod))
-				Mod = mod == 1;
-
-			if (msg.TryGetValue("room-id", out var roomId))
-				RoomId = roomId;
-
-			if (msg.TryGetValue("user-id", out var userId))
-				UserId = userId;
-
-			Channel = message.Split(' ')[3];
-			Message = message.Split(new[] { $" PRIVMSG {Channel} :" }, StringSplitOptions.None)[1];
+			PrintProperties();
 		}
 	}
 }
