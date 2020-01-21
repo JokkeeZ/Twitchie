@@ -52,8 +52,6 @@ namespace Twitchie2.Events
 
 			Channel = message.PopArgument();
 			Message = message.GetRemainingMessage(true);
-
-			PrintProperties();
 		}
 	}
 }

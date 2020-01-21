@@ -14,8 +14,6 @@ namespace Twitchie2.Events
 			message.SkipArguments(1);
 
 			Channel = message.GetRemainingMessage();
-
-			PrintProperties();
 		}
 	}
 }
