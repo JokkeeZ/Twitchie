@@ -8,8 +8,6 @@
 
 		public TwitchBadge() { }
 
-		public TwitchBadge(string badge) => Name = badge;
-
 		public TwitchBadge(string badge, string version)
 		{
 			Name = badge;

@@ -9,7 +9,8 @@ namespace Twitchie2.Events
 
 		public NoticeEventArgs(Twitchie twitchie, TwitchIrcMessage message) : base(twitchie)
 		{
-			MessageId = message.PopKeyValueArgument().value;
+			var arg = message.PopDictionaryArgument();
+			MessageId = arg.GetValue<string>("msg-id");
 
 			// :tmi.twitch.tv NOTICE
 			message.SkipArguments(2);

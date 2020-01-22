@@ -4,7 +4,8 @@ namespace Twitchie2
 {
 	internal static class EventParser
 	{
-		static readonly Dictionary<string, EventType> events = new Dictionary<string, EventType>
+		static readonly Dictionary<string, EventType> events =
+		new Dictionary<string, EventType>
 		{
 			{ "PRIVMSG", EventType.Message },
 			{ "ROOMSTATE",EventType.RoomState },

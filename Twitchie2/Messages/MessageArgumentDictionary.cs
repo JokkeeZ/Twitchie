@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Twitchie2.Messages
 {
-	public class MessageArgumentDictionary
+	internal class MessageArgumentDictionary
 	{
 		private readonly Dictionary<string, object> collection;
 
@@ -17,7 +18,7 @@ namespace Twitchie2.Messages
 			}
 		}
 
-		public T GetValue<T>(string key)
+		internal T GetValue<T>(string key) where T : IEquatable<T>
 			=> MessageArgumentConverter.ConvertValue<T>(collection[key]);
 	}
 }
