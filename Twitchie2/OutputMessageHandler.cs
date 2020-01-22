@@ -8,13 +8,16 @@ namespace Twitchie2
 	{
 		protected TextWriter writer;
 
-		public void InitializeStream(NetworkStream stream) => writer = new StreamWriter(stream);
+		internal void InitializeStream(NetworkStream stream) => writer = new StreamWriter(stream);
 
-		public void WriteIrcMessage(string message)
+		internal void WriteIrcMessage(string message)
 		{
 			writer.Write($"{message}\r\n");
 			writer.Flush();
 		}
+
+		internal void RequestCapabilities(string capabilities)
+			=> WriteIrcMessage($"CAP REQ :twitch.tv/{capabilities}");
 
 		public void SendMessage(string channel, string message)
 			=> WriteIrcMessage($"PRIVMSG {channel} :{message}");

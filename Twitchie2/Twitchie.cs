@@ -70,9 +70,9 @@ namespace Twitchie2
 			WriteIrcMessage($"PASS {password}");
 			WriteIrcMessage($"NICK {this.nickname}");
 
-			WriteIrcMessage("CAP REQ :twitch.tv/membership");
-			WriteIrcMessage("CAP REQ :twitch.tv/commands");
-			WriteIrcMessage("CAP REQ :twitch.tv/tags");
+			RequestCapabilities("membership");
+			RequestCapabilities("commands");
+			RequestCapabilities("tags");
 
 			OnMessage += (sender, args) =>
 			{
