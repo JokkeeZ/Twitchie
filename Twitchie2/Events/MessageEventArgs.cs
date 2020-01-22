@@ -28,10 +28,10 @@ namespace Twitchie2.Events
 			BadgeInfo = arg.GetValue<string>("badge-info");
 
 			//<badge>/<version>,<badge>/<version>
-			var badges = arg.GetValue<string>("badges").Split(',');
-			if (badges.Length > 0)
+			var badges = arg.GetValue<string>("badges");
+			if (!string.IsNullOrWhiteSpace(badges))
 			{
-				foreach (var badge in badges)
+				foreach (var badge in badges.Split(','))
 				{
 					var split = badge.Split('/');
 					Badges.Add(new TwitchBadge(split[0], split[1]));
