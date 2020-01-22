@@ -1,6 +1,8 @@
 # Twitchie
 C# library for handling Twitch.tv IRC events.
 
+[![MIT License](https://img.shields.io/static/v1?label=License&message=MIT&color=brightgreen)](https://github.com/JokkeeZ/Twitchie/blob/Twitchie2/LICENSE)
+
 # How to use it?
 1. Clone or download repository
 2. Build solution with Visual Studio
