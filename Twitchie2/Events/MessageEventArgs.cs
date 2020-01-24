@@ -10,7 +10,7 @@ namespace Twitchie2.Events
 		public string Bits { get; }
 		public string Color { get; }
 		public string DisplayName { get; }
-		public string Username { get; set; }
+		public string Username { get; }
 		public string Emotes { get; }
 		public string MessageId { get; }
 		public string Message { get; }
