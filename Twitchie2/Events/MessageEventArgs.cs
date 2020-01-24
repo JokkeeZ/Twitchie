@@ -10,6 +10,7 @@ namespace Twitchie2.Events
 		public string Bits { get; }
 		public string Color { get; }
 		public string DisplayName { get; }
+		public string Username { get; set; }
 		public string Emotes { get; }
 		public string MessageId { get; }
 		public string Message { get; }
@@ -47,8 +48,11 @@ namespace Twitchie2.Events
 			Timestamp = arg.GetValue<string>("tmi-sent-ts");
 			UserId = arg.GetValue<int>("user-id");
 
-			// :<user>!<user>@<user>.tmi.twitch.tv PRIVMSG
-			message.SkipArguments(2);
+			// :<user>!<user>@<user>.tmi.twitch.tv 
+			Username = message.PopUserHostArgument().username;
+
+			// PRIVMSG
+			message.SkipArguments(1);
 
 			Channel = message.PopArgument();
 			Message = message.GetRemainingMessage(true);
