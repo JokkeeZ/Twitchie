@@ -2,14 +2,15 @@
 
 namespace Twitchie2.Events
 {
-	public class ClearChatEventArgs : TwitchieEventArgs
+	public class ClearChatEventArgs
 	{
 		public int BanDuration { get; }
 		public int RoomId { get; }
 		public int TargetUserId { get; }
 		public string TargetUsername { get; }
+		public TwitchIrcChannel Channel { get; }
 
-		public ClearChatEventArgs(Twitchie twitchie, TwitchIrcMessage message) : base(twitchie)
+		public ClearChatEventArgs(TwitchIrcMessage message)
 		{
 			var arg = message.PopDictionaryArgument();
 
@@ -20,7 +21,8 @@ namespace Twitchie2.Events
 			//:tmi.twitch.tv CLEARCHAT
 			message.SkipArguments(2);
 
-			Channel = message.PopArgument();
+			var channel = message.PopArgument();
+			Channel = Twitchie.Instance.Channels.Find(x => x.Name == channel);
 			TargetUsername = message.GetRemainingMessage(true);
 		}
 	}

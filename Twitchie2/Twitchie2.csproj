@@ -36,14 +36,14 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChatAccount.cs" />
     <Compile Include="Events\ClearChatEventArgs.cs" />
     <Compile Include="Events\HostTargetEventArgs.cs" />
     <Compile Include="Events\JoinEventArgs.cs" />
-    <Compile Include="Messages\ArgumentConverter.cs" />
+    <Compile Include="Messages\MessageArgumentConverter.cs" />
     <Compile Include="Messages\TwitchIrcMessage.cs" />
     <Compile Include="Messages\MessageArgumentDictionary.cs" />
-    <Compile Include="TwitchieEventArgs.cs" />
-    <Compile Include="NoticeType.cs" />
+    <Compile Include="Enums\NoticeType.cs" />
     <Compile Include="Events\UserNoticeEventArgs.cs" />
     <Compile Include="Events\MessageEventArgs.cs" />
     <Compile Include="Events\ModeEventArgs.cs" />
@@ -52,9 +52,10 @@
     <Compile Include="Events\RawMessageEventArgs.cs" />
     <Compile Include="Events\RoomStateEventArgs.cs" />
     <Compile Include="TwitchBadge.cs" />
-    <Compile Include="EventType.cs" />
+    <Compile Include="Enums\EventType.cs" />
     <Compile Include="OutputMessageHandler.cs" />
     <Compile Include="EventParser.cs" />
+    <Compile Include="TwitchIrcChannel.cs" />
     <Compile Include="Twitchie.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -2,15 +2,16 @@
 
 namespace Twitchie2.Events
 {
-	public class RoomStateEventArgs : TwitchieEventArgs
+	public class RoomStateEventArgs
 	{
 		public bool EmoteOnly { get; }
 		public bool FollowersOnly { get; }
 		public bool R9k { get; }
 		public int SlowMode { get; }
 		public bool SubOnly { get; }
+		public TwitchIrcChannel Channel { get; }
 
-		public RoomStateEventArgs(Twitchie twitchie, TwitchIrcMessage message) : base(twitchie)
+		public RoomStateEventArgs(TwitchIrcMessage message)
 		{
 			var arg = message.PopDictionaryArgument();
 
@@ -23,7 +24,8 @@ namespace Twitchie2.Events
 			// :tmi.twitch.tv ROOMSTATE
 			message.SkipArguments(2);
 
-			Channel = message.GetRemainingMessage();
+			var channel = message.GetRemainingMessage();
+			Channel = Twitchie.Instance.Channels.Find(x => x.Name == channel);
 		}
 	}
 }

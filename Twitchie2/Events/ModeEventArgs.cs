@@ -2,17 +2,20 @@
 
 namespace Twitchie2.Events
 {
-	public class ModeEventArgs : TwitchieEventArgs
+	public class ModeEventArgs
 	{
 		public bool AddingModerator { get; }
 		public string Username { get; }
+		public TwitchIrcChannel Channel { get; }
 
-		public ModeEventArgs(Twitchie twitchie, TwitchIrcMessage message) : base(twitchie)
+		public ModeEventArgs(TwitchIrcMessage message)
 		{
 			// :jtv MODE #<channel> +o/-o <username>
 			message.SkipArguments(2);
 
-			Channel = message.PopArgument();
+			var channel = message.PopArgument();
+			Channel = Twitchie.Instance.Channels.Find(x => x.Name == channel);
+
 			AddingModerator = message.PopArgument() == "+o";
 			Username = message.PopArgument();
 		}

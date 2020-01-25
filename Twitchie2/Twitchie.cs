@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Twitchie2.Enums;
 using Twitchie2.Events;
 using Twitchie2.Messages;
 
@@ -15,11 +17,10 @@ namespace Twitchie2
 		private CancellationTokenSource cts;
 		private TcpClient tcpClient;
 
-		private string nickname;
+		internal static Twitchie Instance { get; private set; }
 
-		public List<string> Channels { get; }
-
-		public string OwnChannel => $"#{nickname}";
+		public List<TwitchIrcChannel> Channels { get; }
+		public ChatAccount Account { get; private set; }
 
 		public event EventHandler<RawMessageEventArgs> OnRawMessage;
 		public event EventHandler<MessageEventArgs> OnMessage;
@@ -33,7 +34,11 @@ namespace Twitchie2
 		public event EventHandler<UserNoticeEventArgs> OnUserNotice;
 		public event EventHandler<MessageEventArgs> OnMention;
 
-		public Twitchie() : base() => Channels = new List<string>();
+		public Twitchie() : base()
+		{
+			Channels = new List<TwitchIrcChannel>();
+			Instance = this;
+		}
 
 		public async Task ConnectAsync()
 		{
@@ -56,28 +61,43 @@ namespace Twitchie2
 			}
 		}
 
-		public void SetDefaultChannels(IEnumerable<string> channels) => Channels.AddRange(channels);
+		public void AddChannels(IEnumerable<TwitchIrcChannel> channels) => Channels.AddRange(channels);
 
-		public void SetDefaultChannel(string channel) => Channels.Add(channel);
+		public void AddChannel(TwitchIrcChannel channel) => Channels.Add(channel);
+		public void AddChannel(string channel) => Channels.Add(new TwitchIrcChannel(channel));
+
+		public void Login(ChatAccount account)
+		{
+			Login(account.Nickname, account.OauthToken);
+		}
 
 		public void Login(string nickname, string password)
 		{
-			this.nickname = nickname.ToLower();
+			if (Account != null && Account.LoggedIn)
+				return;
+
+			Account ??= new ChatAccount
+			{
+				Nickname = nickname.ToLower(),
+				OauthToken = password,
+			};
 
 			if (writer == null)
 				throw new Exception($"Twitchie needs to be connected to the Twitch IRC, before login is available.");
 
-			WriteIrcMessage($"PASS {password}");
-			WriteIrcMessage($"NICK {this.nickname}");
+			WriteIrcMessage($"PASS {Account.OauthToken}");
+			WriteIrcMessage($"NICK {Account.Nickname}");
 
 			RequestCapabilities("membership");
 			RequestCapabilities("commands");
 			RequestCapabilities("tags");
 
+			Account.LoggedIn = true;
+
 			OnMessage += (sender, args) =>
 			{
-				if (args.Message.ToLower().Contains($"@{this.nickname}"))
-					OnMention?.Invoke(this, new MessageEventArgs(this, new TwitchIrcMessage(args.RawMessage)));
+				if (args.Message.ToLower().Contains($"@{Account.Nickname}"))
+					OnMention?.Invoke(this, new MessageEventArgs(new TwitchIrcMessage(args.RawMessage)));
 			};
 		}
 
@@ -88,7 +108,7 @@ namespace Twitchie2
 			while (!cts.IsCancellationRequested)
 			{
 				var buffer = await input.ReadLineAsync();
-				if (buffer == null)
+				if (buffer == null || (buffer?.Length == 0))
 					return;
 
 				OnRawMessage?.Invoke(this, new RawMessageEventArgs(buffer));
@@ -96,8 +116,8 @@ namespace Twitchie2
 				var eventType = EventParser.ParseEventType(buffer);
 				HandleIrcEvent(eventType, new TwitchIrcMessage(buffer));
 
-				if (buffer.Split(' ')[1] == "001" && Channels.Count > 0)
-					Channels.ForEach(channel => JoinChannel(channel));
+				if (buffer.Split(' ')[1] == "001")
+					Channels.ForEach(channel => channel.Join());
 			}
 		}
 
@@ -106,39 +126,39 @@ namespace Twitchie2
 			switch (eventType)
 			{
 				case EventType.ClearChat:
-					OnClearChat?.Invoke(this, new ClearChatEventArgs(this, msg));
+					OnClearChat?.Invoke(this, new ClearChatEventArgs(msg));
 					break;
 
 				case EventType.HostTarget:
-					OnHostTarget?.Invoke(this, new HostTargetEventArgs(this, msg));
+					OnHostTarget?.Invoke(this, new HostTargetEventArgs(msg));
 					break;
 
 				case EventType.Join:
-					OnJoin?.Invoke(this, new JoinEventArgs(this, msg));
+					OnJoin?.Invoke(this, new JoinEventArgs(msg));
 					break;
 
 				case EventType.Message:
-					OnMessage?.Invoke(this, new MessageEventArgs(this, msg));
+					OnMessage?.Invoke(this, new MessageEventArgs(msg));
 					break;
 
 				case EventType.Mode:
-					OnMode?.Invoke(this, new ModeEventArgs(this, msg));
+					OnMode?.Invoke(this, new ModeEventArgs(msg));
 					break;
 
 				case EventType.Notice:
-					OnNotice?.Invoke(this, new NoticeEventArgs(this, msg));
+					OnNotice?.Invoke(this, new NoticeEventArgs(msg));
 					break;
 
 				case EventType.Part:
-					OnPart?.Invoke(this, new PartEventArgs(this, msg));
+					OnPart?.Invoke(this, new PartEventArgs(msg));
 					break;
 
 				case EventType.RoomState:
-					OnRoomState?.Invoke(this, new RoomStateEventArgs(this, msg));
+					OnRoomState?.Invoke(this, new RoomStateEventArgs(msg));
 					break;
 
 				case EventType.UserNotice:
-					OnUserNotice?.Invoke(this, new UserNoticeEventArgs(this, msg));
+					OnUserNotice?.Invoke(this, new UserNoticeEventArgs(msg));
 					break;
 
 				case EventType.Ping:
@@ -147,24 +167,27 @@ namespace Twitchie2
 			}
 		}
 
-		public void JoinChannel(string channel)
+		public void PartFromAllChannels() => Channels.ForEach(channel => channel.Part());
+
+		public void RemoveChannel(string name)
 		{
-			if (channel[0] != '#')
-				channel = $"#{channel}";
+			var channel = Channels.FirstOrDefault(x => x.Name == name);
+			if (channel == null)
+				return;
 
-			if (!Channels.Contains(channel))
-				Channels.Add(channel);
-
-			WriteIrcMessage($"JOIN {channel}");
+			channel.Part();
+			Channels.Remove(channel);
 		}
 
-		public void PartChannel(string channel)
+		public void JoinChannel(string name)
 		{
-			if (Channels.Remove(channel))
-				WriteIrcMessage($"PART {channel}");
-		}
+			var channel = Channels.FirstOrDefault(x => x.Name == name);
+			if (channel != null)
+				return;
 
-		public void PartFromAllChannels() => Channels.ForEach(x => PartChannel(x));
+			channel.Join();
+			Channels.Add(channel);
+		}
 
 		public void Disconnect()
 		{
@@ -184,8 +207,6 @@ namespace Twitchie2
 			{
 				cts?.Dispose();
 				tcpClient?.Dispose();
-
-				Channels.Clear();
 
 				base.Dispose();
 			}

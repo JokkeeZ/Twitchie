@@ -2,13 +2,13 @@
 
 namespace Twitchie2.Events
 {
-	public class JoinEventArgs : TwitchieEventArgs
+	public class JoinEventArgs
 	{
 		public string Username { get; }
-
 		public string Host { get; }
+		public TwitchIrcChannel Channel { get; }
 
-		public JoinEventArgs(Twitchie twitchie, TwitchIrcMessage message) : base(twitchie)
+		public JoinEventArgs(TwitchIrcMessage message)
 		{
 			var (username, host) = message.PopUserHostArgument();
 			Username = username;
@@ -17,7 +17,8 @@ namespace Twitchie2.Events
 			// JOIN
 			message.SkipArguments(1);
 
-			Channel = message.GetRemainingMessage();
+			var channel = message.GetRemainingMessage();
+			Channel = Twitchie.Instance.Channels.Find(x => x.Name == channel);
 		}
 	}
 }

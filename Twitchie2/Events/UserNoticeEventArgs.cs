@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using Twitchie2.Enums;
 using Twitchie2.Messages;
 
 namespace Twitchie2.Events
 {
-	public class UserNoticeEventArgs : TwitchieEventArgs
+	public class UserNoticeEventArgs
 	{
 		public string BadgeInfo { get; }
 		public List<TwitchBadge> Badges { get; } = new List<TwitchBadge>();
@@ -20,10 +21,10 @@ namespace Twitchie2.Events
 		public int UserId { get; }
 		public string Message { get; }
 		public string Timestamp { get; }
-
+		public TwitchIrcChannel Channel { get; }
 		public UserNoticeMsgParams MsgParams { get; } = new UserNoticeMsgParams();
 
-		public UserNoticeEventArgs(Twitchie twitchie, TwitchIrcMessage message) : base(twitchie)
+		public UserNoticeEventArgs(TwitchIrcMessage message)
 		{
 			var arg = message.PopDictionaryArgument();
 			BadgeInfo = arg.GetValue<string>("badge-info");
@@ -73,7 +74,8 @@ namespace Twitchie2.Events
 			// :tmi.twitch.tv USERNOTICE
 			message.SkipArguments(2);
 
-			Channel = message.PopArgument();
+			var channel = message.PopArgument();
+			Channel = Twitchie.Instance.Channels.Find(x => x.Name == channel);
 			Message = message.GetRemainingMessage();
 		}
 	}

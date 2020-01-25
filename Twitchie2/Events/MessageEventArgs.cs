@@ -3,7 +3,7 @@ using Twitchie2.Messages;
 
 namespace Twitchie2.Events
 {
-	public class MessageEventArgs : TwitchieEventArgs
+	public class MessageEventArgs
 	{
 		public string BadgeInfo { get; }
 		public List<TwitchBadge> Badges { get; } = new List<TwitchBadge>();
@@ -19,8 +19,9 @@ namespace Twitchie2.Events
 		public int UserId { get; }
 		public string RawMessage { get; }
 		public string Timestamp { get; }
+		public TwitchIrcChannel Channel { get; }
 
-		public MessageEventArgs(Twitchie sender, TwitchIrcMessage message) : base(sender)
+		public MessageEventArgs(TwitchIrcMessage message)
 		{
 			RawMessage = message.Content;
 
@@ -54,7 +55,9 @@ namespace Twitchie2.Events
 			// PRIVMSG
 			message.SkipArguments(1);
 
-			Channel = message.PopArgument();
+			var channel = message.PopArgument();
+			Channel = Twitchie.Instance.Channels.Find(x => x.Name == channel);
+
 			Message = message.GetRemainingMessage(true);
 		}
 	}

@@ -2,17 +2,19 @@
 
 namespace Twitchie2.Events
 {
-	public class HostTargetEventArgs : TwitchieEventArgs
+	public class HostTargetEventArgs
 	{
 		public int Viewers { get; }
 		public string TargetChannel { get; }
 		public bool IsStarting { get; }
+		public TwitchIrcChannel Channel { get; }
 
-		public HostTargetEventArgs(Twitchie twitchie, TwitchIrcMessage message) : base(twitchie)
+		public HostTargetEventArgs(TwitchIrcMessage message)
 		{
 			message.SkipArguments(2);
 
-			Channel = message.PopArgument();
+			var channel = message.PopArgument();
+			Channel = Twitchie.Instance.Channels.Find(x => x.Name == channel);
 
 			var targetChannel = message.PopArgument();
 			IsStarting = targetChannel != ":-";

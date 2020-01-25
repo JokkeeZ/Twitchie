@@ -1,4 +1,4 @@
-﻿namespace Twitchie2
+﻿namespace Twitchie2.Enums
 {
 	public enum EventType
 	{

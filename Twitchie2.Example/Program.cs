@@ -13,7 +13,7 @@ namespace Twitchie2.Example
 			await twitchie.ConnectAsync();
 			twitchie.Login("jokkeez", "oauth:password");
 
-			twitchie.SetDefaultChannels(new[] { "#jokkeez" });
+			twitchie.AddChannel("#jokkeez");
 
 			twitchie.OnMessage += OnMessage;
 
@@ -22,7 +22,7 @@ namespace Twitchie2.Example
 
 		static void OnMessage(object sender, MessageEventArgs e)
 		{
-			Console.WriteLine($"User: {e.DisplayName} on channel: {e.Channel}: {e.Message}");
+			Console.WriteLine($"User: {e.DisplayName} on channel: {e.Channel.Name}: {e.Message}");
 		}
 	}
 }
