@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -22,6 +21,7 @@ namespace Twitchie2
 		public List<TwitchIrcChannel> Channels { get; }
 		public ChatAccount Account { get; private set; }
 
+		#region Events
 		public event EventHandler<RawMessageEventArgs> OnRawMessage;
 		public event EventHandler<MessageEventArgs> OnMessage;
 		public event EventHandler<RoomStateEventArgs> OnRoomState;
@@ -33,6 +33,7 @@ namespace Twitchie2
 		public event EventHandler<ClearChatEventArgs> OnClearChat;
 		public event EventHandler<UserNoticeEventArgs> OnUserNotice;
 		public event EventHandler<MessageEventArgs> OnMention;
+		#endregion
 
 		public Twitchie() : base()
 		{
@@ -55,21 +56,18 @@ namespace Twitchie2
 			}
 			catch (SocketException ex)
 			{
-#if DEBUG
-				Debug.WriteLine(ex.Message);
-#endif
+				throw ex;
 			}
 		}
 
 		public void AddChannels(IEnumerable<TwitchIrcChannel> channels) => Channels.AddRange(channels);
 
 		public void AddChannel(TwitchIrcChannel channel) => Channels.Add(channel);
+
 		public void AddChannel(string channel) => Channels.Add(new TwitchIrcChannel(channel));
 
 		public void Login(ChatAccount account)
-		{
-			Login(account.Nickname, account.OauthToken);
-		}
+			=> Login(account.Nickname, account.OauthToken);
 
 		public void Login(string nickname, string password)
 		{
@@ -182,11 +180,17 @@ namespace Twitchie2
 		public void JoinChannel(string name)
 		{
 			var channel = Channels.FirstOrDefault(x => x.Name == name);
-			if (channel != null)
-				return;
+			if (channel == null)
+			{
+				channel = new TwitchIrcChannel(name);
 
-			channel.Join();
-			Channels.Add(channel);
+				channel.Join();
+				Channels.Add(channel);
+				return;
+			}
+
+			if (!channel.Joined)
+				channel.Join();
 		}
 
 		public void Disconnect()
@@ -207,6 +211,8 @@ namespace Twitchie2
 			{
 				cts?.Dispose();
 				tcpClient?.Dispose();
+
+				Channels.Clear();
 
 				base.Dispose();
 			}
