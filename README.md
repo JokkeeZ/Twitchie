@@ -1,5 +1,5 @@
 # Twitchie
-C# library for handling Twitch.tv IRC events.
+Event driven Twitch IRC library written in C# 8 / .NET 4.8
 
 [![MIT License](https://img.shields.io/static/v1?label=License&message=MIT&color=brightgreen)](https://github.com/JokkeeZ/Twitchie/blob/Twitchie2/LICENSE)
 
@@ -7,7 +7,8 @@ C# library for handling Twitch.tv IRC events.
 1. Clone or download repository
 2. Build solution with Visual Studio
 3. Add built library to your project
-4. Have fun
+4. Obtain required chat oauth token. You can get it easily from [here!](https://twitchapps.com/tmi/)
+5. Have fun
 
 # Example? ([See also this](https://github.com/JokkeeZ/Twitchie/blob/Twitchie2/Twitchie2.Example/Program.cs))
 ```cs
@@ -30,3 +31,5 @@ static void OnMessage(object sender, MessageEventArgs e)
 	Console.WriteLine($"User: {e.DisplayName} on channel: {e.Channel}: {e.Message}");
 }
 ```
+# Dependencies
+Twitchie doesn't use any external dependencies.
