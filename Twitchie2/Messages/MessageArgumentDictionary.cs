@@ -19,6 +19,11 @@ namespace Twitchie2.Messages
 		}
 
 		internal T GetValue<T>(string key) where T : IEquatable<T>
-			=> MessageArgumentConverter.ConvertValue<T>(collection[key]);
+		{
+			if (!collection.ContainsKey(key))
+				return default;
+
+			return MessageArgumentConverter.ConvertValue<T>(collection[key]);
+		}
 	}
 }
