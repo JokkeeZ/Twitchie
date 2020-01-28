@@ -47,7 +47,7 @@ namespace Twitchie2.Events
 			Mod = arg.GetValue<int>("mod") == 1;
 			MsgId = (NoticeType)Enum.Parse(typeof(NoticeType), arg.GetValue<string>("msg-id"), true);
 			RoomId = arg.GetValue<int>("room-id");
-			SystemMsg = arg.GetValue<string>("system-msg");
+			SystemMsg = arg.GetValue<string>("system-msg").Replace("\\s", " ");
 			Timestamp = arg.GetValue<string>("tmi-sent-ts");
 			UserId = arg.GetValue<int>("user-id");
 
