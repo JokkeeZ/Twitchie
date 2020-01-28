@@ -33,6 +33,7 @@ namespace Twitchie2
 		public event EventHandler<ClearChatEventArgs> OnClearChat;
 		public event EventHandler<UserNoticeEventArgs> OnUserNotice;
 		public event EventHandler<MessageEventArgs> OnMention;
+		public event EventHandler<UserStateEventArgs> OnUserState;
 		#endregion
 
 		public Twitchie() : base()
@@ -113,9 +114,6 @@ namespace Twitchie2
 
 				var eventType = EventParser.ParseEventType(buffer);
 				HandleIrcEvent(eventType, new TwitchIrcMessage(buffer));
-
-				if (buffer.Split(' ')[1] == "001")
-					Channels.ForEach(channel => channel.Join());
 			}
 		}
 
@@ -123,6 +121,10 @@ namespace Twitchie2
 		{
 			switch (eventType)
 			{
+				case EventType.WelcomeMessage:
+					Channels.ForEach(channel => channel.Join());
+					break;
+
 				case EventType.ClearChat:
 					OnClearChat?.Invoke(this, new ClearChatEventArgs(msg));
 					break;
@@ -157,6 +159,10 @@ namespace Twitchie2
 
 				case EventType.UserNotice:
 					OnUserNotice?.Invoke(this, new UserNoticeEventArgs(msg));
+					break;
+
+				case EventType.UserState:
+					OnUserState?.Invoke(this, new UserStateEventArgs(msg));
 					break;
 
 				case EventType.Ping:

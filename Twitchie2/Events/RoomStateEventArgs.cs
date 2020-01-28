@@ -1,8 +1,9 @@
-﻿using Twitchie2.Messages;
+﻿using System;
+using Twitchie2.Messages;
 
 namespace Twitchie2.Events
 {
-	public class RoomStateEventArgs
+	public class RoomStateEventArgs : EventArgs
 	{
 		public bool EmoteOnly { get; }
 		public bool FollowersOnly { get; }

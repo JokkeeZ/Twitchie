@@ -1,8 +1,9 @@
-﻿using Twitchie2.Messages;
+﻿using System;
+using Twitchie2.Messages;
 
 namespace Twitchie2.Events
 {
-	public class JoinEventArgs
+	public class JoinEventArgs : EventArgs
 	{
 		public string Username { get; }
 		public string Host { get; }

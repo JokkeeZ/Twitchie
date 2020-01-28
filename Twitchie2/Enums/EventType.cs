@@ -2,6 +2,8 @@
 {
 	public enum EventType
 	{
+		WelcomeMessage,
+		Ignored,
 		RawMessage,
 		Message,
 		Ping,
@@ -14,6 +16,9 @@
 		HostTarget,
 		ClearChat,
 		UserNotice,
+		UserState,
+		NameListing,
+		NameListingEnd,
 		NotImplemented
 	}
 }

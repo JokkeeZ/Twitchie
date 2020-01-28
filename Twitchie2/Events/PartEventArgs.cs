@@ -1,8 +1,9 @@
-﻿using Twitchie2.Messages;
+﻿using System;
+using Twitchie2.Messages;
 
 namespace Twitchie2.Events
 {
-	public class PartEventArgs
+	public class PartEventArgs : EventArgs
 	{
 		public string Username { get; }
 		public TwitchIrcChannel Channel { get; }

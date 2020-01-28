@@ -1,8 +1,9 @@
-﻿using Twitchie2.Messages;
+﻿using System;
+using Twitchie2.Messages;
 
 namespace Twitchie2.Events
 {
-	public class ClearChatEventArgs
+	public class ClearChatEventArgs : EventArgs
 	{
 		public int BanDuration { get; }
 		public int RoomId { get; }
