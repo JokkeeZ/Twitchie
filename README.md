@@ -1,5 +1,5 @@
 # Twitchie
-Event driven Twitch IRC library written in C# 8 / .NET 4.8
+Event driven Twitch IRC library written in .NET 5
 
 [![MIT License](https://img.shields.io/static/v1?label=License&message=MIT&color=brightgreen)](https://github.com/JokkeeZ/Twitchie/blob/Twitchie2/LICENSE)
 
@@ -10,16 +10,16 @@ Event driven Twitch IRC library written in C# 8 / .NET 4.8
 4. Obtain required chat oauth token. You can get it easily from [here!](https://twitchapps.com/tmi/)
 5. Have fun
 
-# Example? ([See also this](https://github.com/JokkeeZ/Twitchie/blob/Twitchie2/Twitchie2.Example/Program.cs))
+# Example?
 ```cs
 static async Task Main()
 {
 	using var twitchie = new Twitchie();
 
 	await twitchie.ConnectAsync();
-	twitchie.Login("jokkeez", "oauth:password");
+	twitchie.Login("username", "oauth:password");
 
-	twitchie.SetDefaultChannels(new[] { "#jokkeez" });
+	twitchie.SetDefaultChannels(new[] { "#channel" });
 
 	twitchie.OnMessage += OnMessage;
 
