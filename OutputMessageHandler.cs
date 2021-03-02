@@ -1,10 +1,9 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Net.Sockets;
 
 namespace Twitchie2
 {
-	public abstract class OutputMessageHandler : IDisposable
+	public abstract class OutputMessageHandler
 	{
 		protected TextWriter writer;
 
@@ -30,17 +29,5 @@ namespace Twitchie2
 
 		public void SendWhisper(string channel, string receiver, string message)
 			=> SendMessage(channel, $"/w {receiver} {message}");
-
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-				writer?.Dispose();
-		}
 	}
 }

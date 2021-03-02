@@ -10,7 +10,7 @@ namespace Twitchie2.Messages
 			{
 				return (T)Convert.ChangeType(argument, typeof(T));
 			}
-			catch (Exception ex) when (ex is InvalidCastException || ex is ArgumentNullException)
+			catch (Exception ex) when (ex is InvalidCastException or ArgumentNullException)
 			{
 				return default;
 			}

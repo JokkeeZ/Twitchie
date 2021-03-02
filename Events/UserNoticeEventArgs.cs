@@ -8,7 +8,7 @@ namespace Twitchie2.Events
 	public class UserNoticeEventArgs : EventArgs
 	{
 		public string BadgeInfo { get; }
-		public List<TwitchBadge> Badges { get; } = new List<TwitchBadge>();
+		public List<TwitchBadge> Badges { get; } = new();
 		public string Color { get; }
 		public string DisplayName { get; }
 		public string Emotes { get; }
@@ -22,7 +22,7 @@ namespace Twitchie2.Events
 		public string Message { get; }
 		public string Timestamp { get; }
 		public TwitchIrcChannel Channel { get; }
-		public UserNoticeMsgParams MsgParams { get; } = new UserNoticeMsgParams();
+		public UserNoticeMsgParams MsgParams { get; } = new();
 
 		public UserNoticeEventArgs(TwitchIrcMessage message)
 		{
@@ -35,7 +35,7 @@ namespace Twitchie2.Events
 				foreach (var badge in badges.Split(','))
 				{
 					var split = badge.Split('/');
-					Badges.Add(new TwitchBadge(split[0], split[1]));
+					Badges.Add(new(split[0], split[1]));
 				}
 			}
 

@@ -19,7 +19,7 @@ namespace Twitchie2.Events
 
 			var targetChannel = message.PopArgument();
 			IsStarting = targetChannel != ":-";
-			TargetChannel = IsStarting ? targetChannel.Substring(1) : string.Empty;
+			TargetChannel = IsStarting ? targetChannel[1..] : string.Empty;
 			Viewers = message.GetRemainingArgument<int>();
 		}
 	}

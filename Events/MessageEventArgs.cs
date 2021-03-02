@@ -7,7 +7,7 @@ namespace Twitchie2.Events
 	public class MessageEventArgs : EventArgs
 	{
 		public string BadgeInfo { get; }
-		public List<TwitchBadge> Badges { get; } = new List<TwitchBadge>();
+		public List<TwitchBadge> Badges { get; } = new();
 		public string Bits { get; }
 		public string Color { get; }
 		public string DisplayName { get; }

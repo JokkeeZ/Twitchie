@@ -11,7 +11,7 @@ using Twitchie2.Messages;
 
 namespace Twitchie2
 {
-	public class Twitchie : OutputMessageHandler
+	public class Twitchie : OutputMessageHandler, IDisposable
 	{
 		private CancellationTokenSource cts;
 		private TcpClient tcpClient;
@@ -34,20 +34,17 @@ namespace Twitchie2
 		public event EventHandler<UserNoticeEventArgs> OnUserNotice;
 		public event EventHandler<MessageEventArgs> OnMention;
 		public event EventHandler<UserStateEventArgs> OnUserState;
+		public event EventHandler<ConnectionErrorEventArgs> OnConnectionError;
 		#endregion
 
-		public Twitchie() : base()
-		{
-			Channels = new List<TwitchIrcChannel>();
-			Instance = this;
-		}
+		public Twitchie() => (Channels, Instance) = (new(), this);
 
 		public async Task ConnectAsync()
 		{
 			try
 			{
-				cts = new CancellationTokenSource();
-				tcpClient = new TcpClient();
+				cts = new();
+				tcpClient = new();
 
 				await tcpClient.ConnectAsync("irc.chat.twitch.tv", 6667);
 
@@ -57,7 +54,7 @@ namespace Twitchie2
 			}
 			catch (SocketException ex)
 			{
-				throw ex;
+				OnConnectionError?.Invoke(this, new(ex));
 			}
 		}
 
@@ -65,7 +62,7 @@ namespace Twitchie2
 
 		public void AddChannel(TwitchIrcChannel channel) => Channels.Add(channel);
 
-		public void AddChannel(string channel) => Channels.Add(new TwitchIrcChannel(channel));
+		public void AddChannel(string channel) => Channels.Add(new(channel));
 
 		public void Login(ChatAccount account)
 			=> Login(account.Nickname, account.OauthToken);
@@ -78,7 +75,7 @@ namespace Twitchie2
 			Account ??= new ChatAccount
 			{
 				Nickname = nickname.ToLower(),
-				OauthToken = password,
+				OauthToken = password
 			};
 
 			if (writer == null)
@@ -96,7 +93,7 @@ namespace Twitchie2
 			OnMessage += (sender, args) =>
 			{
 				if (args.Message.ToLower().Contains($"@{Account.Nickname}"))
-					OnMention?.Invoke(this, new MessageEventArgs(new TwitchIrcMessage(args.RawMessage)));
+					OnMention?.Invoke(this, new(new(args.RawMessage)));
 			};
 		}
 
@@ -110,10 +107,10 @@ namespace Twitchie2
 				if (buffer == null || (buffer?.Length == 0))
 					return;
 
-				OnRawMessage?.Invoke(this, new RawMessageEventArgs(buffer));
+				OnRawMessage?.Invoke(this, new(buffer));
 
 				var eventType = EventParser.ParseEventType(buffer);
-				HandleIrcEvent(eventType, new TwitchIrcMessage(buffer));
+				HandleIrcEvent(eventType, new(buffer));
 			}
 		}
 
@@ -122,56 +119,57 @@ namespace Twitchie2
 			switch (eventType)
 			{
 				case EventType.WelcomeMessage:
-					Channels.ForEach(channel => channel.Join());
-					break;
+				Channels.ForEach(channel => channel.Join());
+				break;
 
 				case EventType.ClearChat:
-					OnClearChat?.Invoke(this, new ClearChatEventArgs(msg));
-					break;
+				OnClearChat?.Invoke(this, new(msg));
+				break;
 
 				case EventType.HostTarget:
-					OnHostTarget?.Invoke(this, new HostTargetEventArgs(msg));
-					break;
+				OnHostTarget?.Invoke(this, new(msg));
+				break;
 
 				case EventType.Join:
-					OnJoin?.Invoke(this, new JoinEventArgs(msg));
-					break;
+				OnJoin?.Invoke(this, new(msg));
+				break;
 
 				case EventType.Message:
-					OnMessage?.Invoke(this, new MessageEventArgs(msg));
-					break;
+				OnMessage?.Invoke(this, new(msg));
+				break;
 
 				case EventType.Mode:
-					OnMode?.Invoke(this, new ModeEventArgs(msg));
-					break;
+				OnMode?.Invoke(this, new(msg));
+				break;
 
 				case EventType.Notice:
-					OnNotice?.Invoke(this, new NoticeEventArgs(msg));
-					break;
+				OnNotice?.Invoke(this, new(msg));
+				break;
 
 				case EventType.Part:
-					OnPart?.Invoke(this, new PartEventArgs(msg));
-					break;
+				OnPart?.Invoke(this, new(msg));
+				break;
 
 				case EventType.RoomState:
-					OnRoomState?.Invoke(this, new RoomStateEventArgs(msg));
-					break;
+				OnRoomState?.Invoke(this, new(msg));
+				break;
 
 				case EventType.UserNotice:
-					OnUserNotice?.Invoke(this, new UserNoticeEventArgs(msg));
-					break;
+				OnUserNotice?.Invoke(this, new(msg));
+				break;
 
 				case EventType.UserState:
-					OnUserState?.Invoke(this, new UserStateEventArgs(msg));
-					break;
+				OnUserState?.Invoke(this, new(msg));
+				break;
 
 				case EventType.Ping:
-					WriteIrcMessage("PONG :tmi.twitch.tv");
-					break;
+				WriteIrcMessage("PONG :tmi.twitch.tv");
+				break;
 			}
 		}
 
-		public void PartFromAllChannels() => Channels.ForEach(channel => channel.Part());
+		public void PartFromAllChannels()
+			=> Channels.ForEach(channel => channel.Part());
 
 		public void RemoveChannel(string name)
 		{
@@ -188,7 +186,7 @@ namespace Twitchie2
 			var channel = Channels.FirstOrDefault(x => x.Name == name);
 			if (channel == null)
 			{
-				channel = new TwitchIrcChannel(name);
+				channel = new(name);
 
 				channel.Join();
 				Channels.Add(channel);
@@ -205,13 +203,13 @@ namespace Twitchie2
 			cts?.Cancel();
 		}
 
-		public new void Dispose()
+		public void Dispose()
 		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
-		protected new virtual void Dispose(bool disposing)
+		protected virtual void Dispose(bool disposing)
 		{
 			if (disposing)
 			{
@@ -220,7 +218,7 @@ namespace Twitchie2
 
 				Channels.Clear();
 
-				base.Dispose();
+				writer.Dispose();
 			}
 		}
 	}

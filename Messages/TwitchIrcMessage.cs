@@ -9,10 +9,7 @@ namespace Twitchie2.Messages
 		public string Content { get; }
 
 		public TwitchIrcMessage(string content)
-		{
-			Content = content;
-			reader = new StringReader(content);
-		}
+			=> (Content, reader) = (content, new StringReader(content));
 
 		public string PopArgument()
 		{
@@ -36,7 +33,7 @@ namespace Twitchie2.Messages
 			var message = reader.ReadToEnd().TrimEnd('\r', '\n');
 
 			if (removeColon)
-				message = message.Substring(1);
+				message = message[1..];
 
 			return message;
 		}
@@ -59,8 +56,8 @@ namespace Twitchie2.Messages
 
 		internal MessageArgumentDictionary PopDictionaryArgument()
 		{
-			var args = PopArgument().Substring(1).Split(';');
-			return new MessageArgumentDictionary(args);
+			var args = PopArgument()[1..].Split(';');
+			return new(args);
 		}
 	}
 }

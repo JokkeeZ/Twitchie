@@ -9,7 +9,7 @@ namespace Twitchie2.Messages
 
 		public MessageArgumentDictionary(string[] args)
 		{
-			collection = new Dictionary<string, object>();
+			collection = new();
 
 			foreach (var arg in args)
 			{
