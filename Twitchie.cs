@@ -58,11 +58,19 @@ namespace Twitchie2
 			}
 		}
 
-		public void AddChannels(IEnumerable<TwitchIrcChannel> channels) => Channels.AddRange(channels);
+		public void AddChannels(IEnumerable<TwitchIrcChannel> channels)
+		{
+			foreach (var channel in channels)
+				AddChannel(channel);
+		}
 
-		public void AddChannel(TwitchIrcChannel channel) => Channels.Add(channel);
+		public void AddChannel(TwitchIrcChannel channel)
+		{
+			if (!Channels.Any(x => x.Name == channel.Name))
+				Channels.Add(channel);
+		}
 
-		public void AddChannel(string channel) => Channels.Add(new(channel));
+		public void AddChannel(string channel) => AddChannel(new TwitchIrcChannel(channel));
 
 		public void Login(ChatAccount account)
 			=> Login(account.Nickname, account.OauthToken);
@@ -171,30 +179,37 @@ namespace Twitchie2
 		public void PartFromAllChannels()
 			=> Channels.ForEach(channel => channel.Part());
 
-		public void RemoveChannel(string name)
+		public bool RemoveChannel(string name)
 		{
-			var channel = Channels.FirstOrDefault(x => x.Name == name);
+			var channel = Channels.FirstOrDefault(x => x.Name == (name[0] == '#' ? name : '#' + name));
 			if (channel == null)
-				return;
+				return false;
 
 			channel.Part();
 			Channels.Remove(channel);
+
+			return true;
 		}
 
-		public void JoinChannel(string name)
+		public bool JoinChannel(string name)
 		{
-			var channel = Channels.FirstOrDefault(x => x.Name == name);
+			var channel = Channels.FirstOrDefault(x => x.Name == (name[0] == '#' ? name : '#' + name));
 			if (channel == null)
 			{
 				channel = new(name);
 
 				channel.Join();
 				Channels.Add(channel);
-				return;
+				return true;
 			}
 
 			if (!channel.Joined)
+			{
 				channel.Join();
+				return true;
+			}
+
+			return false;
 		}
 
 		public void Disconnect()
