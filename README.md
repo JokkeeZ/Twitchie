@@ -14,22 +14,27 @@ Event driven Twitch IRC library written in .NET 5
 ```cs
 static async Task Main()
 {
+	// Initialize Twitchie instance, it will be disposed after ListenAsync ends.
 	using var twitchie = new Twitchie();
-
+	
+	// Subscribe to events.
 	twitchie.OnMessage += OnMessage;
 
+	// Connect to Twitch IRC.
 	await twitchie.ConnectAsync();
+	
+	// Login to Twitch IRC with lowercase username and OAuth token.
 	await twitchie.LoginAsync(new("username", "oauth:password"));
 
+	// Join some channel.
 	await twitchie.JoinChannelAsync(new("#channel"));
 
+	// Start loop which will receive messages until disposed/cancelled.
 	await twitchie.ListenAsync();
 }
 
 static void OnMessage(object sender, MessageEventArgs e)
-{
-	Console.WriteLine($"User: {e.DisplayName} on channel: {e.Channel}: {e.Message}");
-}
+	=> Console.WriteLine($"User: {e.DisplayName} on channel: {e.Channel}: {e.Message}");
 ```
 # Dependencies
 Twitchie doesn't use any external dependencies.
