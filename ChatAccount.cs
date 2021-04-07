@@ -1,10 +1,13 @@
 ﻿namespace Twitchie2
 {
-	public class ChatAccount
+	public record ChatAccount
 	{
-		public string Nickname { get; set; }
-		public string OauthToken { get; set; }
-		internal bool LoggedIn { get; set; }
+		public string Nickname { get; init; }
+		public string OauthToken { get; init; }
+		public bool LoggedIn { get; internal set; }
 		public string OwnChannel => $"#{Nickname}";
+
+		public ChatAccount(string nickname, string oauthToken)
+			=> (Nickname, OauthToken) = (nickname.ToLower(), oauthToken);
 	}
 }

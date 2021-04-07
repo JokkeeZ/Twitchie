@@ -25,5 +25,23 @@ namespace Twitchie2.Messages
 
 			return MessageArgumentConverter.ConvertValue<T>(value);
 		}
+
+		public List<TwitchBadge> PopBadges()
+		{
+			var list = new List<TwitchBadge>();
+			var badges = GetValue<string>("badges");
+
+			//<badge>/<version>,<badge>/<version>
+			if (!string.IsNullOrWhiteSpace(badges))
+			{
+				foreach (var badge in badges.Split(','))
+				{
+					var split = badge.Split('/');
+					list.Add(new(split[0], split[1]));
+				}
+			}
+
+			return list;
+		}
 	}
 }

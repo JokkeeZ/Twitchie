@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,14 +10,17 @@ using Twitchie2.Messages;
 
 namespace Twitchie2
 {
-	public class Twitchie : OutputMessageHandler, IDisposable
+	public class Twitchie : IDisposable
 	{
 		private CancellationTokenSource cts;
 		private TcpClient tcpClient;
 
+		private TextReader reader;
+		private TextWriter writer;
+
 		internal static Twitchie Instance { get; private set; }
 
-		public List<TwitchIrcChannel> Channels { get; }
+		public List<TwitchIrcChannel> Channels { get; private set; }
 		public ChatAccount Account { get; private set; }
 
 		#region Events
@@ -31,26 +33,36 @@ namespace Twitchie2
 		public event EventHandler<NoticeEventArgs> OnNotice;
 		public event EventHandler<HostTargetEventArgs> OnHostTarget;
 		public event EventHandler<ClearChatEventArgs> OnClearChat;
+		public event EventHandler<ClearMessageEventArgs> OnClearMessage;
 		public event EventHandler<UserNoticeEventArgs> OnUserNotice;
 		public event EventHandler<MessageEventArgs> OnMention;
 		public event EventHandler<UserStateEventArgs> OnUserState;
 		public event EventHandler<ConnectionErrorEventArgs> OnConnectionError;
 		#endregion
 
-		public Twitchie() => (Channels, Instance) = (new(), this);
+		public Twitchie() => Channels = new();
 
 		public async Task ConnectAsync()
 		{
+			cts = new();
+
+			await CreateConnectionAsync();
+
+			Instance = this;
+		}
+
+		private async Task CreateConnectionAsync()
+		{
 			try
 			{
-				cts = new();
 				tcpClient = new();
-
 				await tcpClient.ConnectAsync("irc.chat.twitch.tv", 6667);
 
 				if (tcpClient.Connected)
-					InitializeStream(tcpClient.GetStream());
-
+				{
+					reader = new StreamReader(tcpClient.GetStream());
+					writer = new StreamWriter(tcpClient.GetStream());
+				}
 			}
 			catch (SocketException ex)
 			{
@@ -58,43 +70,19 @@ namespace Twitchie2
 			}
 		}
 
-		public void AddChannels(IEnumerable<TwitchIrcChannel> channels)
-		{
-			foreach (var channel in channels)
-				AddChannel(channel);
-		}
-
-		public void AddChannel(TwitchIrcChannel channel)
-		{
-			if (!Channels.Any(x => x.Name == channel.Name))
-				Channels.Add(channel);
-		}
-
-		public void AddChannel(string channel) => AddChannel(new TwitchIrcChannel(channel));
-
-		public void Login(ChatAccount account)
-			=> Login(account.Nickname, account.OauthToken);
-
-		public void Login(string nickname, string password)
+		public async Task LoginAsync(ChatAccount account)
 		{
 			if (Account != null && Account.LoggedIn)
-				return;
+				throw new Exception($"Twitchie is already logged in.");
 
-			Account ??= new ChatAccount
-			{
-				Nickname = nickname.ToLower(),
-				OauthToken = password
-			};
+			Account ??= account ?? throw new ArgumentNullException(nameof(account));
 
-			if (writer == null)
-				throw new Exception($"Twitchie needs to be connected to the Twitch IRC, before login is available.");
+			await SendAsync($"PASS {Account.OauthToken}");
+			await SendAsync($"NICK {Account.Nickname}");
 
-			WriteIrcMessage($"PASS {Account.OauthToken}");
-			WriteIrcMessage($"NICK {Account.Nickname}");
-
-			RequestCapabilities("membership");
-			RequestCapabilities("commands");
-			RequestCapabilities("tags");
+			await CapAsync("membership");
+			await CapAsync("commands");
+			await CapAsync("tags");
 
 			Account.LoggedIn = true;
 
@@ -107,116 +95,150 @@ namespace Twitchie2
 
 		public async Task ListenAsync()
 		{
-			using var input = new StreamReader(tcpClient.GetStream());
-
 			while (!cts.IsCancellationRequested)
 			{
-				var buffer = await input.ReadLineAsync();
-				if (buffer == null || (buffer?.Length == 0))
+				string buffer;
+
+				try
+				{
+					buffer = await reader.ReadLineAsync();
+				}
+				catch
+				{
+					continue;
+				}
+
+				if (buffer == null)
 					return;
 
 				OnRawMessage?.Invoke(this, new(buffer));
 
 				var eventType = EventParser.ParseEventType(buffer);
-				HandleIrcEvent(eventType, new(buffer));
+				await HandleIrcEventAsync(eventType, new(buffer));
 			}
 		}
 
-		private void HandleIrcEvent(EventType eventType, TwitchIrcMessage msg)
+		private async Task HandleIrcEventAsync(EventType eventType, TwitchIrcMessage msg)
 		{
 			switch (eventType)
 			{
 				case EventType.WelcomeMessage:
-				Channels.ForEach(channel => channel.Join());
-				break;
+					foreach (var channel in Channels)
+						await channel.JoinAsync();
+					break;
 
 				case EventType.ClearChat:
-				OnClearChat?.Invoke(this, new(msg));
-				break;
+					OnClearChat?.Invoke(this, new(msg));
+					break;
+
+				case EventType.ClearMessage:
+					OnClearMessage?.Invoke(this, new(msg));
+					break;
 
 				case EventType.HostTarget:
-				OnHostTarget?.Invoke(this, new(msg));
-				break;
+					OnHostTarget?.Invoke(this, new(msg));
+					break;
 
 				case EventType.Join:
-				OnJoin?.Invoke(this, new(msg));
-				break;
+					OnJoin?.Invoke(this, new(msg));
+					break;
 
 				case EventType.Message:
-				OnMessage?.Invoke(this, new(msg));
-				break;
+					OnMessage?.Invoke(this, new(msg));
+					break;
 
 				case EventType.Mode:
-				OnMode?.Invoke(this, new(msg));
-				break;
+					OnMode?.Invoke(this, new(msg));
+					break;
 
 				case EventType.Notice:
-				OnNotice?.Invoke(this, new(msg));
-				break;
+					OnNotice?.Invoke(this, new(msg));
+					break;
 
 				case EventType.Part:
-				OnPart?.Invoke(this, new(msg));
-				break;
+					OnPart?.Invoke(this, new(msg));
+					break;
 
 				case EventType.RoomState:
-				OnRoomState?.Invoke(this, new(msg));
-				break;
+					OnRoomState?.Invoke(this, new(msg));
+					break;
 
 				case EventType.UserNotice:
-				OnUserNotice?.Invoke(this, new(msg));
-				break;
+					OnUserNotice?.Invoke(this, new(msg));
+					break;
 
 				case EventType.UserState:
-				OnUserState?.Invoke(this, new(msg));
-				break;
+					OnUserState?.Invoke(this, new(msg));
+					break;
 
 				case EventType.Ping:
-				WriteIrcMessage("PONG :tmi.twitch.tv");
-				break;
+					await SendAsync("PONG :tmi.twitch.tv");
+					break;
 			}
 		}
 
-		public void PartFromAllChannels()
-			=> Channels.ForEach(channel => channel.Part());
-
-		public bool RemoveChannel(string name)
+		public async Task PartAllAsync()
 		{
-			var channel = Channels.FirstOrDefault(x => x.Name == (name[0] == '#' ? name : '#' + name));
-			if (channel == null)
-				return false;
-
-			channel.Part();
-			Channels.Remove(channel);
-
-			return true;
+			foreach (var channel in Channels)
+			{
+				await channel.PartAsync();
+			}
 		}
 
-		public bool JoinChannel(string name)
+		public async Task JoinChannelAsync(TwitchIrcChannel channel)
 		{
-			var channel = Channels.FirstOrDefault(x => x.Name == (name[0] == '#' ? name : '#' + name));
-			if (channel == null)
+			if (!Channels.Contains(channel))
 			{
-				channel = new(name);
-
-				channel.Join();
+				await channel.JoinAsync();
 				Channels.Add(channel);
-				return true;
 			}
-
-			if (!channel.Joined)
-			{
-				channel.Join();
-				return true;
-			}
-
-			return false;
 		}
 
-		public void Disconnect()
+		public async Task<bool> PartChannelAsync(TwitchIrcChannel channel)
 		{
-			PartFromAllChannels();
-			cts?.Cancel();
+			await channel.PartAsync();
+			return Channels.Remove(channel);
 		}
+
+		public async Task ReconnectAsync()
+		{
+			await DisconnectAsync();
+
+			await CreateConnectionAsync();
+			await LoginAsync(Account);
+		}
+
+		public async Task DisconnectAsync()
+		{
+			await PartAllAsync();
+
+			reader.Close();
+			writer.Close();
+			tcpClient.Close();
+
+			Account.LoggedIn = false;
+		}
+
+		internal async Task SendAsync(string message)
+		{
+			await writer.WriteAsync($"{message}\r\n");
+			await writer.FlushAsync();
+		}
+
+		internal async Task CapAsync(string capabilities)
+			=> await SendAsync($"CAP REQ :twitch.tv/{capabilities}");
+
+		public async Task ChatAsync(string channel, string message)
+			=> await SendAsync($"PRIVMSG {channel} :{message}");
+
+		public async Task ActionAsync(string channel, string message)
+			=> await ChatAsync(channel, $"/me {message}");
+
+		public async Task MentionAsync(string channel, string user, string message)
+			=> await ChatAsync(channel, $"@{user}, {message}");
+
+		public async Task WhisperAsync(string channel, string receiver, string message)
+			=> await ChatAsync(channel, $"/w {receiver} {message}");
 
 		public void Dispose()
 		{
@@ -229,11 +251,12 @@ namespace Twitchie2
 			if (disposing)
 			{
 				cts?.Dispose();
+
+				reader?.Dispose();
+				writer?.Dispose();
 				tcpClient?.Dispose();
 
 				Channels.Clear();
-
-				writer.Dispose();
 			}
 		}
 	}

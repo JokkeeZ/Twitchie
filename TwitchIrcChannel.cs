@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Twitchie2
 {
@@ -8,6 +9,8 @@ namespace Twitchie2
 
 		public bool Joined { get; private set; }
 
+		public Twitchie Instance => Twitchie.Instance;
+
 		public TwitchIrcChannel(string channel)
 		{
 			if (string.IsNullOrWhiteSpace(channel))
@@ -16,32 +19,32 @@ namespace Twitchie2
 			Name = channel[0] == '#' ? channel : '#' + channel;
 		}
 
-		public void SendMessage(string message)
-			=> Twitchie.Instance.SendMessage(Name, message);
+		public async Task SendMessageAsync(string message)
+			=> await Instance.ChatAsync(Name, message);
 
-		public void SendAction(string action)
-			=> Twitchie.Instance.SendAction(Name, action);
+		public async Task SendActionAsync(string action)
+			=> await Instance.ActionAsync(Name, action);
 
-		public void SendMention(string user, string message)
-			=> Twitchie.Instance.SendMention(Name, user, message);
+		public async Task SendMentionAsync(string user, string message)
+			=> await Instance.MentionAsync(Name, user, message);
 
-		public void SendWhisper(string user, string message)
-			=> Twitchie.Instance.SendWhisper(Name, user, message);
+		public async Task SendWhisperAsync(string user, string message)
+			=> await Instance.WhisperAsync(Name, user, message);
 
-		public void Join()
+		public async Task JoinAsync()
 		{
 			if (!Joined)
 			{
-				Twitchie.Instance.WriteIrcMessage($"JOIN {Name}");
+				await Instance.SendAsync($"JOIN {Name}");
 				Joined = true;
 			}
 		}
 
-		public void Part()
+		public async Task PartAsync()
 		{
 			if (Joined)
 			{
-				Twitchie.Instance.WriteIrcMessage($"PART {Name}");
+				await Instance.SendAsync($"PART {Name}");
 				Joined = false;
 			}
 		}

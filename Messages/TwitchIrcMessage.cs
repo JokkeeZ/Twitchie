@@ -16,7 +16,7 @@ namespace Twitchie2.Messages
 			var arg = "";
 
 			int c;
-			while ((c = reader.Read()) != ' ' && c != '\r' && c != '\n')
+			while ((c = reader.Read()) != ' ' && c != '\r' && c != '\n' && c != -1)
 				arg += (char)c;
 
 			return arg.TrimEnd('\r', '\n');
@@ -32,10 +32,10 @@ namespace Twitchie2.Messages
 		{
 			var message = reader.ReadToEnd().TrimEnd('\r', '\n');
 
-			if (removeColon)
-				message = message[1..];
+			if (string.IsNullOrEmpty(message))
+				return null;
 
-			return message;
+			return removeColon ? message[1..] : message;
 		}
 
 		public T GetRemainingArgument<T>()

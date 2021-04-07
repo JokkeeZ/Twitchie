@@ -15,6 +15,7 @@
 		Subscribe,
 		HostTarget,
 		ClearChat,
+		ClearMessage,
 		UserNotice,
 		UserState,
 		NameListing,

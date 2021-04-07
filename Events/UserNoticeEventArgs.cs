@@ -8,7 +8,7 @@ namespace Twitchie2.Events
 	public class UserNoticeEventArgs : EventArgs
 	{
 		public string BadgeInfo { get; }
-		public List<TwitchBadge> Badges { get; } = new();
+		public List<TwitchBadge> Badges { get; }
 		public string Color { get; }
 		public string DisplayName { get; }
 		public string Emotes { get; }
@@ -22,22 +22,14 @@ namespace Twitchie2.Events
 		public string Message { get; }
 		public string Timestamp { get; }
 		public TwitchIrcChannel Channel { get; }
-		public UserNoticeMsgParams MsgParams { get; } = new();
+		public UserNoticeMsgParams MsgParams { get; }
 
 		public UserNoticeEventArgs(TwitchIrcMessage message)
 		{
 			var arg = message.PopDictionaryArgument();
 			BadgeInfo = arg.GetValue<string>("badge-info");
 
-			var badges = arg.GetValue<string>("badges");
-			if (!string.IsNullOrWhiteSpace(badges))
-			{
-				foreach (var badge in badges.Split(','))
-				{
-					var split = badge.Split('/');
-					Badges.Add(new(split[0], split[1]));
-				}
-			}
+			Badges = arg.PopBadges();
 
 			Color = arg.GetValue<string>("color");
 			DisplayName = arg.GetValue<string>("display-name");
@@ -52,53 +44,57 @@ namespace Twitchie2.Events
 			UserId = arg.GetValue<int>("user-id");
 
 			// Additional parameters.
-			MsgParams.CumulativeMonths = arg.GetValue<int>("msg-param-cumulative-months");
-			MsgParams.DisplayName = arg.GetValue<string>("msg-param-displayName");
-			MsgParams.Login = arg.GetValue<string>("msg-param-login");
-			MsgParams.Months = arg.GetValue<int>("msg-param-months");
-			MsgParams.PromoGiftTotal = arg.GetValue<int>("msg-param-promo-gift-total");
-			MsgParams.PromoName = arg.GetValue<string>("msg-param-promo-name");
-			MsgParams.RecipientDisplayName = arg.GetValue<string>("msg-param-recipient-display-name");
-			MsgParams.RecipientId = arg.GetValue<string>("msg-param-recipient-id");
-			MsgParams.RecipientUsername = arg.GetValue<string>("msg-param-recipient-user-name");
-			MsgParams.SenderLogin = arg.GetValue<string>("msg-param-sender-login");
-			MsgParams.SenderName = arg.GetValue<string>("msg-param-sender-name");
-			MsgParams.ShouldShareStreak = arg.GetValue<int>("msg-param-should-share-streak") == 1;
-			MsgParams.StreakMonths = arg.GetValue<int>("msg-param-streak-months");
-			MsgParams.SubPlan = arg.GetValue<string>("msg-param-sub-plan");
-			MsgParams.SubPlanName = arg.GetValue<string>("msg-param-sub-plan-name");
-			MsgParams.ViewerCount = arg.GetValue<int>("msg-param-viewerCount");
-			MsgParams.RitualName = arg.GetValue<string>("msg-param-ritual-name");
-			MsgParams.Threshold = arg.GetValue<string>("msg-param-threshold");
+			MsgParams = new()
+			{
+				CumulativeMonths = arg.GetValue<int>("msg-param-cumulative-months"),
+				DisplayName = arg.GetValue<string>("msg-param-displayName"),
+				Login = arg.GetValue<string>("msg-param-login"),
+				Months = arg.GetValue<int>("msg-param-months"),
+				PromoGiftTotal = arg.GetValue<int>("msg-param-promo-gift-total"),
+				PromoName = arg.GetValue<string>("msg-param-promo-name"),
+				RecipientDisplayName = arg.GetValue<string>("msg-param-recipient-display-name"),
+				RecipientId = arg.GetValue<string>("msg-param-recipient-id"),
+				RecipientUsername = arg.GetValue<string>("msg-param-recipient-user-name"),
+				SenderLogin = arg.GetValue<string>("msg-param-sender-login"),
+				SenderName = arg.GetValue<string>("msg-param-sender-name"),
+				ShouldShareStreak = arg.GetValue<int>("msg-param-should-share-streak") == 1,
+				StreakMonths = arg.GetValue<int>("msg-param-streak-months"),
+				SubPlan = arg.GetValue<string>("msg-param-sub-plan"),
+				SubPlanName = arg.GetValue<string>("msg-param-sub-plan-name"),
+				ViewerCount = arg.GetValue<int>("msg-param-viewerCount"),
+				RitualName = arg.GetValue<string>("msg-param-ritual-name"),
+				Threshold = arg.GetValue<string>("msg-param-threshold"),
+				GiftMonths = arg.GetValue<int>("msg-param-gift-months")
+			};
 
 			// :tmi.twitch.tv USERNOTICE
 			message.SkipArguments(2);
 
-			var channel = message.PopArgument();
-			Channel = Twitchie.Instance.Channels.Find(x => x.Name == channel);
+			Channel = Twitchie.Instance.Channels.Find(x => x.Name == message.PopArgument());
 			Message = message.GetRemainingMessage();
 		}
 	}
 
 	public class UserNoticeMsgParams
 	{
-		public int CumulativeMonths { get; internal set; }
-		public string DisplayName { get; internal set; }
-		public string Login { get; internal set; }
-		public int Months { get; internal set; }
-		public int PromoGiftTotal { get; internal set; }
-		public string PromoName { get; internal set; }
-		public string RecipientDisplayName { get; internal set; }
-		public string RecipientId { get; internal set; }
-		public string RecipientUsername { get; internal set; }
-		public string SenderLogin { get; internal set; }
-		public string SenderName { get; internal set; }
-		public bool ShouldShareStreak { get; internal set; }
-		public int StreakMonths { get; internal set; }
-		public string SubPlan { get; internal set; }
-		public string SubPlanName { get; internal set; }
-		public int ViewerCount { get; internal set; }
-		public string RitualName { get; internal set; }
-		public string Threshold { get; internal set; }
+		public int CumulativeMonths { get; init; }
+		public string DisplayName { get; init; }
+		public string Login { get; init; }
+		public int Months { get; init; }
+		public int PromoGiftTotal { get; init; }
+		public string PromoName { get; init; }
+		public string RecipientDisplayName { get; init; }
+		public string RecipientId { get; init; }
+		public string RecipientUsername { get; init; }
+		public string SenderLogin { get; init; }
+		public string SenderName { get; init; }
+		public bool ShouldShareStreak { get; init; }
+		public int StreakMonths { get; init; }
+		public string SubPlan { get; init; }
+		public string SubPlanName { get; init; }
+		public int ViewerCount { get; init; }
+		public string RitualName { get; init; }
+		public string Threshold { get; init; }
+		public int GiftMonths { get; init; }
 	}
 }

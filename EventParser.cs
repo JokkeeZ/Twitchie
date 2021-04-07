@@ -19,6 +19,7 @@ namespace Twitchie2
 			"NOTICE" => EventType.Notice,
 			"HOSTTARGET" => EventType.HostTarget,
 			"CLEARCHAT" => EventType.ClearChat,
+			"CLEARMSG" => EventType.ClearMessage,
 			"PING" => EventType.Ping,
 			"MODE" => EventType.Mode,
 			"353" => EventType.NameListing,

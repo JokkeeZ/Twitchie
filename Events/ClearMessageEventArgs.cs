@@ -3,18 +3,21 @@ using Twitchie2.Messages;
 
 namespace Twitchie2.Events
 {
-	public class NoticeEventArgs : EventArgs
+	public class ClearMessageEventArgs : EventArgs
 	{
-		public string MessageId { get; }
+		public string Username { get; }
 		public string Message { get; }
+		public string TargetMsgId { get; }
 		public TwitchIrcChannel Channel { get; }
 
-		public NoticeEventArgs(TwitchIrcMessage message)
+		public ClearMessageEventArgs(TwitchIrcMessage message)
 		{
 			var arg = message.PopDictionaryArgument();
-			MessageId = arg.GetValue<string>("msg-id");
 
-			// :tmi.twitch.tv NOTICE
+			Username = arg.GetValue<string>("login");
+			TargetMsgId = arg.GetValue<string>("target-msg-id");
+
+			//:tmi.twitch.tv CLEARMSG
 			message.SkipArguments(2);
 
 			Channel = Twitchie.Instance.Channels.Find(x => x.Name == message.PopArgument());

@@ -11,15 +11,11 @@ namespace Twitchie2.Events
 
 		public JoinEventArgs(TwitchIrcMessage message)
 		{
-			var (username, host) = message.PopUserHostArgument();
-			Username = username;
-			Host = host;
+			(Username, Host) = message.PopUserHostArgument();
 
 			// JOIN
 			message.SkipArguments(1);
-
-			var channel = message.GetRemainingMessage();
-			Channel = Twitchie.Instance.Channels.Find(x => x.Name == channel);
+			Channel = Twitchie.Instance.Channels.Find(x => x.Name == message.GetRemainingMessage());
 		}
 	}
 }

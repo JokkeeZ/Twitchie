@@ -16,12 +16,12 @@ static async Task Main()
 {
 	using var twitchie = new Twitchie();
 
-	await twitchie.ConnectAsync();
-	twitchie.Login("username", "oauth:password");
-
-	twitchie.SetDefaultChannels(new[] { "#channel" });
-
 	twitchie.OnMessage += OnMessage;
+
+	await twitchie.ConnectAsync();
+	await twitchie.LoginAsync(new("username", "oauth:password"));
+
+	await twitchie.JoinChannelAsync(new("#channel"));
 
 	await twitchie.ListenAsync();
 }

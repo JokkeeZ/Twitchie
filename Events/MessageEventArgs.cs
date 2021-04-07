@@ -7,15 +7,16 @@ namespace Twitchie2.Events
 	public class MessageEventArgs : EventArgs
 	{
 		public string BadgeInfo { get; }
-		public List<TwitchBadge> Badges { get; } = new();
-		public string Bits { get; }
+		public List<TwitchBadge> Badges { get; }
 		public string Color { get; }
 		public string DisplayName { get; }
 		public string Username { get; }
 		public string Emotes { get; }
-		public string MessageId { get; }
+		public string Flags { get; }
+		public string Id { get; }
 		public string Message { get; }
 		public bool Mod { get; }
+		public string MessageId { get; set; }
 		public int RoomId { get; }
 		public int UserId { get; }
 		public string RawMessage { get; }
@@ -30,22 +31,15 @@ namespace Twitchie2.Events
 
 			BadgeInfo = arg.GetValue<string>("badge-info");
 
-			//<badge>/<version>,<badge>/<version>
-			var badges = arg.GetValue<string>("badges");
-			if (!string.IsNullOrWhiteSpace(badges))
-			{
-				foreach (var badge in badges.Split(','))
-				{
-					var split = badge.Split('/');
-					Badges.Add(new TwitchBadge(split[0], split[1]));
-				}
-			}
+			Badges = arg.PopBadges();
 
 			Color = arg.GetValue<string>("color");
 			DisplayName = arg.GetValue<string>("display-name");
 			Emotes = arg.GetValue<string>("emotes");
-			MessageId = arg.GetValue<string>("id");
+			Flags = arg.GetValue<string>("flags");
+			Id = arg.GetValue<string>("id");
 			Mod = arg.GetValue<int>("mod") == 1;
+			MessageId = arg.GetValue<string>("msg-id");
 			RoomId = arg.GetValue<int>("room-id");
 			Timestamp = arg.GetValue<string>("tmi-sent-ts");
 			UserId = arg.GetValue<int>("user-id");
@@ -56,8 +50,7 @@ namespace Twitchie2.Events
 			// PRIVMSG
 			message.SkipArguments(1);
 
-			var channel = message.PopArgument();
-			Channel = Twitchie.Instance.Channels.Find(x => x.Name == channel);
+			Channel = Twitchie.Instance.Channels.Find(x => x.Name == message.PopArgument());
 
 			Message = message.GetRemainingMessage(true);
 		}

@@ -25,8 +25,7 @@ namespace Twitchie2.Events
 			// :tmi.twitch.tv ROOMSTATE
 			message.SkipArguments(2);
 
-			var channel = message.GetRemainingMessage();
-			Channel = Twitchie.Instance.Channels.Find(x => x.Name == channel);
+			Channel = Twitchie.Instance.Channels.Find(x => x.Name == message.GetRemainingMessage());
 		}
 	}
 }

@@ -11,11 +11,10 @@ namespace Twitchie2.Events
 
 		public ModeEventArgs(TwitchIrcMessage message)
 		{
-			// :jtv MODE #<channel> +o/-o <username>
+			// :jtv MODE
 			message.SkipArguments(2);
 
-			var channel = message.PopArgument();
-			Channel = Twitchie.Instance.Channels.Find(x => x.Name == channel);
+			Channel = Twitchie.Instance.Channels.Find(x => x.Name == message.PopArgument());
 
 			AddingModerator = message.PopArgument() == "+o";
 			Username = message.PopArgument();

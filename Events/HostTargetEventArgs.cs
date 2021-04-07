@@ -14,12 +14,13 @@ namespace Twitchie2.Events
 		{
 			message.SkipArguments(2);
 
-			var channel = message.PopArgument();
-			Channel = Twitchie.Instance.Channels.Find(x => x.Name == channel);
+			Channel = Twitchie.Instance.Channels.Find(x => x.Name == message.PopArgument());
 
 			var targetChannel = message.PopArgument();
+
 			IsStarting = targetChannel != ":-";
 			TargetChannel = IsStarting ? targetChannel[1..] : string.Empty;
+
 			Viewers = message.GetRemainingArgument<int>();
 		}
 	}

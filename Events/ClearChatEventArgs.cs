@@ -9,6 +9,7 @@ namespace Twitchie2.Events
 		public int RoomId { get; }
 		public int TargetUserId { get; }
 		public string TargetUsername { get; }
+		public string Timestamp { get; }
 		public TwitchIrcChannel Channel { get; }
 
 		public ClearChatEventArgs(TwitchIrcMessage message)
@@ -18,12 +19,12 @@ namespace Twitchie2.Events
 			BanDuration = arg.GetValue<int>("ban-duration");
 			RoomId = arg.GetValue<int>("room-id");
 			TargetUserId = arg.GetValue<int>("target-user-id");
+			Timestamp = arg.GetValue<string>("tmi-sent-ts");
 
 			//:tmi.twitch.tv CLEARCHAT
 			message.SkipArguments(2);
 
-			var channel = message.PopArgument();
-			Channel = Twitchie.Instance.Channels.Find(x => x.Name == channel);
+			Channel = Twitchie.Instance.Channels.Find(x => x.Name == message.PopArgument());
 			TargetUsername = message.GetRemainingMessage(true);
 		}
 	}

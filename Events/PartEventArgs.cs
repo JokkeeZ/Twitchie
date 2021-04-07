@@ -14,9 +14,7 @@ namespace Twitchie2.Events
 
 			// PART
 			message.SkipArguments(1);
-
-			var channel = message.GetRemainingMessage();
-			Channel = Twitchie.Instance.Channels.Find(x => x.Name == channel);
+			Channel = Twitchie.Instance.Channels.Find(x => x.Name == message.GetRemainingMessage());
 		}
 	}
 }
