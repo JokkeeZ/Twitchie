@@ -9,8 +9,6 @@ namespace Twitchie2
 
 		public bool Joined { get; private set; }
 
-		public Twitchie Instance => Twitchie.Instance;
-
 		public TwitchIrcChannel(string channel)
 		{
 			if (string.IsNullOrWhiteSpace(channel))
@@ -20,22 +18,22 @@ namespace Twitchie2
 		}
 
 		public async Task SendMessageAsync(string message)
-			=> await Instance.ChatAsync(Name, message);
+			=> await Twitchie.Instance.ChatAsync(Name, message);
 
 		public async Task SendActionAsync(string action)
-			=> await Instance.ActionAsync(Name, action);
+			=> await Twitchie.Instance.ActionAsync(Name, action);
 
 		public async Task SendMentionAsync(string user, string message)
-			=> await Instance.MentionAsync(Name, user, message);
+			=> await Twitchie.Instance.MentionAsync(Name, user, message);
 
 		public async Task SendWhisperAsync(string user, string message)
-			=> await Instance.WhisperAsync(Name, user, message);
+			=> await Twitchie.Instance.WhisperAsync(Name, user, message);
 
 		public async Task JoinAsync()
 		{
 			if (!Joined)
 			{
-				await Instance.SendAsync($"JOIN {Name}");
+				await Twitchie.Instance.SendAsync($"JOIN {Name}");
 				Joined = true;
 			}
 		}
@@ -44,7 +42,7 @@ namespace Twitchie2
 		{
 			if (Joined)
 			{
-				await Instance.SendAsync($"PART {Name}");
+				await Twitchie.Instance.SendAsync($"PART {Name}");
 				Joined = false;
 			}
 		}
