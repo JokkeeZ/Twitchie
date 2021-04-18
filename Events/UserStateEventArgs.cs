@@ -4,7 +4,7 @@ using Twitchie2.Messages;
 
 namespace Twitchie2.Events
 {
-	public class UserStateEventArgs : EventArgs
+	public sealed class UserStateEventArgs : EventArgs
 	{
 		public string BadgeInfo { get; }
 		public List<TwitchBadge> Badges { get; }

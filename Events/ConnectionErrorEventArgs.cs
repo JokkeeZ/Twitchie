@@ -2,7 +2,7 @@
 
 namespace Twitchie2.Events
 {
-	public class ConnectionErrorEventArgs : EventArgs
+	public sealed class ConnectionErrorEventArgs : EventArgs
 	{
 		public Exception Exception { get; }
 

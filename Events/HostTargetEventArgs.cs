@@ -3,7 +3,7 @@ using Twitchie2.Messages;
 
 namespace Twitchie2.Events
 {
-	public class HostTargetEventArgs : EventArgs
+	public sealed class HostTargetEventArgs : EventArgs
 	{
 		public int Viewers { get; }
 		public string TargetChannel { get; }

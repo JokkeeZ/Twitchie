@@ -3,7 +3,7 @@ using Twitchie2.Messages;
 
 namespace Twitchie2.Events
 {
-	public class NoticeEventArgs : EventArgs
+	public sealed class NoticeEventArgs : EventArgs
 	{
 		public string MessageId { get; }
 		public string Message { get; }

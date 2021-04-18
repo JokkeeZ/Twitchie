@@ -3,7 +3,7 @@ using Twitchie2.Messages;
 
 namespace Twitchie2.Events
 {
-	public class ModeEventArgs : EventArgs
+	public sealed class ModeEventArgs : EventArgs
 	{
 		public bool AddingModerator { get; }
 		public string Username { get; }

@@ -3,7 +3,7 @@ using Twitchie2.Messages;
 
 namespace Twitchie2.Events
 {
-	public class RoomStateEventArgs : EventArgs
+	public sealed class RoomStateEventArgs : EventArgs
 	{
 		public bool EmoteOnly { get; }
 		public bool FollowersOnly { get; }

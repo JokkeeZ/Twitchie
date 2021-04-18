@@ -2,7 +2,7 @@
 
 namespace Twitchie2.Events
 {
-	public class RawMessageEventArgs : EventArgs
+	public sealed class RawMessageEventArgs : EventArgs
 	{
 		public string Message { get; }
 
