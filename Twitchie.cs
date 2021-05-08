@@ -89,7 +89,9 @@ namespace Twitchie2
 			OnMessage += (sender, args) =>
 			{
 				if (args.Message.ToLower().Contains($"@{Account.Nickname}"))
+				{
 					OnMention?.Invoke(this, new(new(args.RawMessage)));
+				}
 			};
 		}
 
@@ -109,7 +111,9 @@ namespace Twitchie2
 				}
 
 				if (buffer == null)
+				{
 					return;
+				}
 
 				OnRawMessage?.Invoke(this, new(buffer));
 

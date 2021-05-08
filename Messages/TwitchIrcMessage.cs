@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 
 namespace Twitchie2.Messages
 {
@@ -13,19 +14,23 @@ namespace Twitchie2.Messages
 
 		public string PopArgument()
 		{
-			var arg = "";
+			var sb = new StringBuilder();
 
 			int c;
-			while ((c = reader.Read()) != ' ' && c != '\r' && c != '\n' && c != -1)
-				arg += (char)c;
+			while ((c = reader.Read()) != ' ' && c != -1)
+			{
+				sb.Append((char)c);
+			}
 
-			return arg.TrimEnd('\r', '\n');
+			return sb.ToString().TrimEnd('\r', '\n');
 		}
 
 		public void SkipArguments(int count)
 		{
 			for (var i = 0; i < count; ++i)
+			{
 				_ = PopArgument();
+			}
 		}
 
 		public string GetRemainingMessage(bool removeColon = false)
@@ -33,7 +38,9 @@ namespace Twitchie2.Messages
 			var message = reader.ReadToEnd().TrimEnd('\r', '\n');
 
 			if (string.IsNullOrEmpty(message))
+			{
 				return null;
+			}
 
 			return removeColon ? message[1..] : message;
 		}

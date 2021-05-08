@@ -7,11 +7,11 @@ namespace Twitchie2.Messages
 	{
 		private readonly Dictionary<string, object> collection;
 
-		public MessageArgumentDictionary(string[] args)
+		public MessageArgumentDictionary(string[] arguments)
 		{
 			collection = new();
 
-			foreach (var arg in args)
+			foreach (var arg in arguments)
 			{
 				var split = arg.Split('=');
 				collection.Add(split[0], split[1]);
@@ -21,24 +21,29 @@ namespace Twitchie2.Messages
 		internal T GetValue<T>(string key) where T : IEquatable<T>
 		{
 			if (!collection.TryGetValue(key, out var value))
+			{
 				return default;
+			}
 
 			return MessageArgumentConverter.ConvertValue<T>(value);
 		}
 
 		public List<TwitchBadge> PopBadges()
 		{
+			var badges = GetValue<string>("badges").Split(',');
+
+			if (badges.Length == 0)
+			{
+				return new();
+			}
+
 			var list = new List<TwitchBadge>();
-			var badges = GetValue<string>("badges");
 
 			//<badge>/<version>,<badge>/<version>
-			if (!string.IsNullOrWhiteSpace(badges))
+			foreach (var badge in badges)
 			{
-				foreach (var badge in badges.Split(','))
-				{
-					var split = badge.Split('/');
-					list.Add(new(split[0], split[1]));
-				}
+				var split = badge.Split('/');
+				list.Add(new(split[0], split[1]));
 			}
 
 			return list;

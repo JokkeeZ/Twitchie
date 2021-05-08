@@ -36,7 +36,9 @@ namespace Twitchie2
 			var splitted = buffer.Split(' ');
 
 			if (buffer[0] == '@')
+			{
 				return splitted[2];
+			}
 
 			return splitted[0] == "PING" ? splitted[0] : splitted[1];
 		}

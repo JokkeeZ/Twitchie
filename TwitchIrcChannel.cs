@@ -12,7 +12,9 @@ namespace Twitchie2
 		public TwitchIrcChannel(string channel)
 		{
 			if (string.IsNullOrWhiteSpace(channel))
+			{
 				throw new ArgumentException("Invalid channel! Channel can not be null or whitespace.");
+			}
 
 			Name = channel[0] == '#' ? channel : '#' + channel;
 		}
